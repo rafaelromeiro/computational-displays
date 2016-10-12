@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Computational Display Simulator</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <style> body { margin: 0px } </style>
+    </head>
+
+    <body>
+        <div id="container"></div>
+
+        <script src="js/lib/three.min.js"></script>
+        <script src="js/lib/stats.min.js"></script>
+        <script src="js/lib/dat.gui.min.js"></script>
+
+        <script src="js/renderScene.js"></script>
+        <script src="js/renderCanvas.js"></script>
+
+        <script> renderCanvas.setup(renderScene); </script>
+    </body>
+</html>
