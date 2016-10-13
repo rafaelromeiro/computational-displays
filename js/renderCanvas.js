@@ -17,11 +17,11 @@ var renderCanvas = {
 
         // Register window resize callback
         this.onWindowResize();
-        window.addEventListener('resize', this.onWindowResize, false);
+        window.addEventListener('resize', this.onWindowResize.bind(this), false);
 
         // Setup scene (camera, uniforms, material, geometry, mesh...)
         this.renderScene = renderScene;
-        this.renderScene.setup(this.onSceneSetupDone);
+        this.renderScene.setup(this.onSceneSetupDone.bind(this));
     },
 
     onWindowResize: function () {
@@ -31,14 +31,14 @@ var renderCanvas = {
 
     onSceneSetupDone: function() {
         // Request first repaint using render
-        requestAnimationFrame(this.render);
+        requestAnimationFrame(this.render.bind(this));
     },
 
-    render: function () {
+    render: function (newTimestamp) {
         // Compute deltaTime with elapsed time since last frame
-        if (!lastTimestamp) lastTimestamp = newTimestamp;
-        var deltaTime = newTimestamp - lastTimestamp;
-        lastTimestamp = newTimestamp;
+        if (!this.lastTimestamp) this.lastTimestamp = newTimestamp;
+        var deltaTime = newTimestamp - this.lastTimestamp;
+        this.lastTimestamp = newTimestamp;
 
         // Render scene monitored by stats
         this.stats.begin();
@@ -46,6 +46,6 @@ var renderCanvas = {
         this.stats.end();
 
         // Request next repaint using render
-        requestAnimationFrame(this.render);
+        requestAnimationFrame(this.render.bind(this));
     }
 }
