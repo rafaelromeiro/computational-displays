@@ -7,12 +7,14 @@ var renderScene = {
 
     setup: function (done) {
         // Fetch all the setup resources (shaders...)
-        Promise.all([
+        /*Promise.all([
             fetch('shaders/simulator.vert').then((function (response) {response.text().then((function (text) {this.vertexShader = text;}).bind(this));}).bind(this)),
             fetch('shaders/simulator.frag').then((function (response) {response.text().then((function (text) {this.fragmentShader = text;}).bind(this));}).bind(this))
         ]).then(this.onSetupResourcesReady).then(done).catch(function () {
             alert('Failed to fetch scene setup resources');
-        });
+        });*/
+
+        fetch('shaders/simulator.vert').then(function (response) {console.log('success');});
     },
 
     onSetupResourcesReady: function () {
