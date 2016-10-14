@@ -11,18 +11,26 @@ uniform float accommodationDistance;
 uniform int pupilSamples;
 uniform vec3 eyePosition;
 
+uniform sampler2D texture0;
 uniform sampler2D texture1;
 
+//Return true if inside [0, 1]², false otherwise
 bool insideTextureCoordRange(vec2 p) {
     vec2 s = step(vec2(0.0), p) - step(vec2(1.0), p);
     return bool(s.x * s.y);
+}
+
+// Return local coordinates of ray intersection with a layer
+vec2 intersectLayer(vec3 origin, vec3 direction, float layerZ) {
+    vec3 layerPoint = origin + direction * (layerZ - origin.z)/direction.z;
+    return layerPoint.xy / displaySize + 0.5;
 }
 
 void main() {
     vec4 backgroundColor = vec4(0.4, 0.4, 0.6, 1.0);
 
     vec3 forwardVec = normalize(-eyePosition);
-    vec3 leftVec = cross(forwardVec, vec3(0.0, 1.0, 0.0));
+    vec3 leftVec = normalize(cross(forwardVec, vec3(0.0, 1.0, 0.0)));
     vec3 upVec = cross(leftVec, forwardVec);
 
     vec2 retinaCoord = (gl_FragCoord.xy - resolution * 0.5) * retinaDiameter / resolution.y;
@@ -31,14 +39,13 @@ void main() {
     vec3 focusPoint = eyePosition + (eyePosition - retinaPoint) * accommodationDistance / focalLength;
     vec3 pupilPoint = eyePosition;
 
-    vec3 displayPoint = pupilPoint + (focusPoint - pupilPoint) * pupilPoint.z / (pupilPoint.z - focusPoint.z);
-    vec2 displayCoord = displayPoint.xy / displaySize + 0.5;
+    vec2 layer0Coord = intersectLayer(pupilPoint, focusPoint - pupilPoint, 0.0);
+    vec2 layer1Coord = intersectLayer(pupilPoint, focusPoint - pupilPoint, -10.0);
 
-    vec4 rayColor;
-    if (insideTextureCoordRange(displayCoord))
-        rayColor = texture2D( texture1, displayCoord );
-    else
-        rayColor = backgroundColor;
-
-    gl_FragColor = rayColor;
+    if (insideTextureCoordRange(layer0Coord) && insideTextureCoordRange(layer1Coord)) {
+        vec4 rayColor = texture2D(texture0, layer0Coord) * texture2D(texture1, layer1Coord);
+        gl_FragColor = rayColor;
+    } else {
+        gl_FragColor = backgroundColor;
+    }
 }

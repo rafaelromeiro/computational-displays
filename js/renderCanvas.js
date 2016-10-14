@@ -1,6 +1,7 @@
 var renderCanvas = {
     renderer: new THREE.WebGLRenderer(),
     stats: new Stats(),
+    gui: new dat.GUI(),
     renderScene: null,
     lastTimestamp: null,
     lastMouseX: null,
@@ -47,7 +48,7 @@ var renderCanvas = {
 
         // Setup scene (camera, uniforms, material, geometry, mesh...)
         this.renderScene = renderScene;
-        this.renderScene.setup(this.onSceneSetupDone.bind(this));
+        this.renderScene.setup(this.gui, this.onSceneSetupDone.bind(this));
     },
 
     onWindowResize: function () {

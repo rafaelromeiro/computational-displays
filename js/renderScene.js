@@ -3,9 +3,45 @@ var renderScene = {
     scene: new THREE.Scene(),
     uniforms: null,
 
-    setup: function (done) {
+    properties: {
+        displayWidth: 400.0,
+        displayHeight: 400.0,
+        pupilDiameter: 8.0,
+        retinaDiameter: 22.0,
+        focalLength: 24.0,
+        accommodationDistance: 150.0,
+        pupilSamples: 4,
+        eyeDistance: 500.0,
+        eyeDistanceLocked: true,
+        eyePositionX: 0.0,
+        eyePositionY: 0.0,
+        eyePositionZ: 500.0,
+
+        setupGUI: function (gui) {
+            var f1 = gui.addFolder('Display Properties');
+            f1.add(this, 'displayWidth').listen();
+            f1.add(this, 'displayHeight').listen();
+            var f2 = gui.addFolder('Intrinsic Eye Properties');
+            f2.add(this, 'pupilDiameter').listen();
+            f2.add(this, 'retinaDiameter').listen();
+            f2.add(this, 'focalLength').listen();
+            f2.add(this, 'pupilSamples').listen();
+            var f3 = gui.addFolder('Extrinsic Eye Properties');
+            f3.add(this, 'accommodationDistance').listen();
+            f3.add(this, 'eyeDistance').listen();
+            f3.add(this, 'eyeDistanceLocked').listen();
+            f3.add(this, 'eyePositionX').listen();
+            f3.add(this, 'eyePositionY').listen();
+            f3.add(this, 'eyePositionZ').listen();
+        }
+    },
+
+    setup: function (gui, done) {
+        // Setup GUI
+        this.properties.setupGUI(gui);
+
         // Fetch all the setup resources (shaders...)
-        var urls = ['shaders/simulator.vert', 'shaders/simulator.frag']
+        var urls = ['shaders/simulator.vert', 'shaders/simulator.frag'];
         var requests = urls.map(url => fetch(url).then(response => response.text()));
         Promise.all(requests).then(resources => { this.onSetupResourcesReady(resources); }).then(done);
     },
@@ -23,14 +59,15 @@ var renderScene = {
         this.uniforms = {
             deltaTime: {type: 'f', value: 0.0},
             resolution: {type: 'v2', value: new THREE.Vector2()},
-            displaySize: {type: 'v2', value: new THREE.Vector2(400.0, 400.0)},
-            pupilDiameter: {type: 'f', value: 8.0},
-            retinaDiameter: {type: 'f', value: 22.0},
-            focalLength: {type: 'f', value: 24.0},
-            accommodationDistance: {type: 'f', value: 150.0},
-            pupilSamples: {type: 'i', value: 4},
-            eyePosition: {type: 'v3', value: new THREE.Vector3(0.0, 0.0, 500.0)},
-            texture1: { type: "t", value: textureLoader.load('images/lenna.png')}
+            displaySize: {type: 'v2', value: new THREE.Vector2()},
+            pupilDiameter: {type: 'f', value: 0.0},
+            retinaDiameter: {type: 'f', value: 0.0},
+            focalLength: {type: 'f', value: 0.0},
+            accommodationDistance: {type: 'f', value: 0.0},
+            pupilSamples: {type: 'i', value: 0},
+            eyePosition: {type: 'v3', value: new THREE.Vector3()},
+            texture0: { type: "t", value: textureLoader.load('images/lenna.png')},
+            texture1: { type: "t", value: textureLoader.load('images/baboon.png')}
         };
 
         // Setup material
@@ -51,15 +88,52 @@ var renderScene = {
     },
 
     render: function (renderer, deltaTime, input) {
-        // Update uniforms
-        this.uniforms.deltaTime.value = deltaTime;
-        this.uniforms.resolution.value.x = renderer.domElement.width;
-        this.uniforms.resolution.value.y = renderer.domElement.height;
+        // Process input
+        this.processInput(deltaTime, input);
 
-        this.uniforms.eyePosition.value.x += input.cameraTruck * 10.0;
-        this.uniforms.eyePosition.value.y += input.cameraPedestal * 10.0;
+        // Update uniforms
+        this.updateUniforms(renderer, deltaTime);
 
         // Render scene
         renderer.render(this.scene, this.camera);
+    },
+
+    processInput: function (deltaTime, input) {
+        var eyePosition = new THREE.Vector3(this.properties.eyePositionX,
+                                            this.properties.eyePositionY,
+                                            this.properties.eyePositionZ);
+
+        eyePosition.x += input.cameraTruck * 5.0;
+        eyePosition.y += input.cameraPedestal * 5.0;
+
+        if (this.properties.eyeDistanceLocked) {
+            eyePosition.normalize();
+            eyePosition.multiplyScalar(this.properties.eyeDistance);
+        }
+        else this.properties.eyeDistance = eyePosition.length();
+
+        this.properties.eyePositionX = eyePosition.x;
+        this.properties.eyePositionY = eyePosition.y;
+        this.properties.eyePositionZ = eyePosition.z;
+    },
+
+    updateUniforms: function (renderer, deltaTime) {
+        this.uniforms.deltaTime.value = deltaTime;
+
+        this.uniforms.resolution.value.x = renderer.domElement.width;
+        this.uniforms.resolution.value.y = renderer.domElement.height;
+
+        this.uniforms.displaySize.value.x = this.properties.displayWidth;
+        this.uniforms.displaySize.value.y = this.properties.displayHeight;
+
+        this.uniforms.pupilDiameter.value = this.properties.pupilDiameter;
+        this.uniforms.retinaDiameter.value = this.properties.retinaDiameter;
+        this.uniforms.focalLength.value = this.properties.focalLength;
+        this.uniforms.accommodationDistance.value = this.properties.accommodationDistance;
+        this.uniforms.pupilSamples.value = this.properties.pupilSamples;
+        
+        this.uniforms.eyePosition.value.x = this.properties.eyePositionX;
+        this.uniforms.eyePosition.value.y = this.properties.eyePositionY;
+        this.uniforms.eyePosition.value.z = this.properties.eyePositionZ;
     }
 }
