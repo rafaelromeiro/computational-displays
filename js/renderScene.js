@@ -4,23 +4,25 @@ var renderScene = {
     uniforms: null,
 
     properties: {
-        displayWidth: 400.0,
-        displayHeight: 400.0,
+        displayWidth: 40.0,
+        displayHeight: 40.0,
+        displaySpacer: 10.0,
         pupilDiameter: 8.0,
         retinaDiameter: 22.0,
         focalLength: 24.0,
-        accommodationDistance: 150.0,
-        pupilSamples: 4,
-        eyeDistance: 500.0,
+        accommodationDistance: 50.0,
+        pupilSamples: 64,
+        eyeDistance: 50.0,
         eyeDistanceLocked: true,
         eyePositionX: 0.0,
         eyePositionY: 0.0,
-        eyePositionZ: 500.0,
+        eyePositionZ: 50.0,
 
         setupGUI: function (gui) {
             var f1 = gui.addFolder('Display Properties');
             f1.add(this, 'displayWidth').listen();
             f1.add(this, 'displayHeight').listen();
+            f1.add(this, 'displaySpacer').listen();
             var f2 = gui.addFolder('Intrinsic Eye Properties');
             f2.add(this, 'pupilDiameter').listen();
             f2.add(this, 'retinaDiameter').listen();
@@ -60,6 +62,7 @@ var renderScene = {
             deltaTime: {type: 'f', value: 0.0},
             resolution: {type: 'v2', value: new THREE.Vector2()},
             displaySize: {type: 'v2', value: new THREE.Vector2()},
+            displaySpacer: {type: 'f', value: 0.0},
             pupilDiameter: {type: 'f', value: 0.0},
             retinaDiameter: {type: 'f', value: 0.0},
             focalLength: {type: 'f', value: 0.0},
@@ -103,8 +106,8 @@ var renderScene = {
                                             this.properties.eyePositionY,
                                             this.properties.eyePositionZ);
 
-        eyePosition.x += input.cameraTruck * 5.0;
-        eyePosition.y += input.cameraPedestal * 5.0;
+        eyePosition.x += input.cameraTruck;
+        eyePosition.y += input.cameraPedestal;
 
         if (this.properties.eyeDistanceLocked) {
             eyePosition.normalize();
@@ -115,6 +118,8 @@ var renderScene = {
         this.properties.eyePositionX = eyePosition.x;
         this.properties.eyePositionY = eyePosition.y;
         this.properties.eyePositionZ = eyePosition.z;
+
+        this.properties.accommodationDistance += input.cameraFocus;
     },
 
     updateUniforms: function (renderer, deltaTime) {
@@ -125,6 +130,7 @@ var renderScene = {
 
         this.uniforms.displaySize.value.x = this.properties.displayWidth;
         this.uniforms.displaySize.value.y = this.properties.displayHeight;
+        this.uniforms.displaySpacer.value = this.properties.displaySpacer;
 
         this.uniforms.pupilDiameter.value = this.properties.pupilDiameter;
         this.uniforms.retinaDiameter.value = this.properties.retinaDiameter;

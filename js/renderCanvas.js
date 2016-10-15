@@ -94,6 +94,6 @@ var renderCanvas = {
     },
 
     onWheel: function (wheelEvent) {
-        this.input.cameraFocus += wheelEvent.deltaY;
+        this.input.cameraFocus -= wheelEvent.deltaY * 0.01;
     }
 }

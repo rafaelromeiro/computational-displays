@@ -2,6 +2,7 @@ uniform float deltaTime;
 uniform vec2 resolution;
 
 uniform vec2 displaySize;
+uniform float displaySpacer;
 
 uniform float pupilDiameter;
 uniform float retinaDiameter;
@@ -13,6 +14,8 @@ uniform vec3 eyePosition;
 
 uniform sampler2D texture0;
 uniform sampler2D texture1;
+
+#define M_PI 3.1415926535897932384626433832795
 
 //Return true if inside [0, 1]², false otherwise
 bool insideTextureCoordRange(vec2 p) {
@@ -37,15 +40,25 @@ void main() {
     vec3 retinaPoint = eyePosition - leftVec * retinaCoord.x - upVec * retinaCoord.y - forwardVec * focalLength;
 
     vec3 focusPoint = eyePosition + (eyePosition - retinaPoint) * accommodationDistance / focalLength;
-    vec3 pupilPoint = eyePosition;
 
-    vec2 layer0Coord = intersectLayer(pupilPoint, focusPoint - pupilPoint, 0.0);
-    vec2 layer1Coord = intersectLayer(pupilPoint, focusPoint - pupilPoint, -10.0);
+    // Spread points over disk through Vogel's method
+    const float goldenAngle =  M_PI * (3.0 - sqrt(5.0));
+    const float MAX_SAMPLES = 1024.0;
+    vec4 retinaColor = vec4(0.0);
+    for (float i = 0.0; i < MAX_SAMPLES; i++) {
+        if (i >= float(pupilSamples)) break;
+        float theta = i * goldenAngle;
+        vec2 pupilCoord = vec2(cos(theta), sin(theta)) * sqrt(i / float(pupilSamples));
+        vec3 pupilPoint = eyePosition + (leftVec * pupilCoord.x + upVec * pupilCoord.y) * pupilDiameter;
 
-    if (insideTextureCoordRange(layer0Coord) && insideTextureCoordRange(layer1Coord)) {
-        vec4 rayColor = texture2D(texture0, layer0Coord) * texture2D(texture1, layer1Coord);
-        gl_FragColor = rayColor;
-    } else {
-        gl_FragColor = backgroundColor;
+        vec2 layer0Coord = intersectLayer(pupilPoint, focusPoint - pupilPoint, 0.0);
+        vec2 layer1Coord = intersectLayer(pupilPoint, focusPoint - pupilPoint, -displaySpacer);
+
+        if (insideTextureCoordRange(layer0Coord) && insideTextureCoordRange(layer1Coord))
+            retinaColor += (texture2D(texture0, layer0Coord) * texture2D(texture1, layer1Coord)) / float(pupilSamples);
+        else
+            retinaColor += backgroundColor / float(pupilSamples);
     }
+
+    gl_FragColor = retinaColor;
 }
