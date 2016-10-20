@@ -1,4 +1,4 @@
-var renderScene = {
+var simulatorScene = {
     camera: new THREE.Camera(),
     scene: new THREE.Scene(),
     uniforms: null,
@@ -18,34 +18,36 @@ var renderScene = {
         eyePositionY: 0.0,
         eyePositionZ: 50.0,
 
-        setupGUI: function (gui) {
-            var f1 = gui.addFolder('Display Properties');
+        setupGUI: function (canvas) {
+            var f1 = canvas.gui.addFolder('Display Properties');
             f1.add(this, 'displayWidth').listen();
             f1.add(this, 'displayHeight').listen();
             f1.add(this, 'displaySpacer').listen();
-            var f2 = gui.addFolder('Intrinsic Eye Properties');
+            var f2 = canvas.gui.addFolder('Intrinsic Eye Properties');
             f2.add(this, 'pupilDiameter').listen();
             f2.add(this, 'retinaDiameter').listen();
             f2.add(this, 'focalLength').listen();
             f2.add(this, 'pupilSamples').listen();
-            var f3 = gui.addFolder('Extrinsic Eye Properties');
+            var f3 = canvas.gui.addFolder('Extrinsic Eye Properties');
             f3.add(this, 'accommodationDistance').listen();
             f3.add(this, 'eyeDistance').listen();
             f3.add(this, 'eyeDistanceLocked').listen();
             f3.add(this, 'eyePositionX').listen();
             f3.add(this, 'eyePositionY').listen();
             f3.add(this, 'eyePositionZ').listen();
+            var f4 = canvas.gui.addFolder('Actions');
+            f4.add(canvas, 'saveScreenshot');
         }
     },
 
-    setup: function (gui, done) {
+    setup: function (canvas) {
         // Setup GUI
-        this.properties.setupGUI(gui);
+        this.properties.setupGUI(canvas);
 
         // Fetch all the setup resources (shaders...)
-        var urls = ['shaders/simulator.vert', 'shaders/simulator.frag'];
+        var urls = ['shaders/basic.vert', 'shaders/simulator.frag'];
         var requests = urls.map(url => fetch(url).then(response => response.text()));
-        Promise.all(requests).then(resources => { this.onSetupResourcesReady(resources); }).then(done);
+        Promise.all(requests).then(resources => { this.onSetupResourcesReady(resources); }).then(canvas.onSceneSetupDone.bind(canvas));
     },
 
     onSetupResourcesReady: function (resources) {
@@ -69,8 +71,10 @@ var renderScene = {
             accommodationDistance: {type: 'f', value: 0.0},
             pupilSamples: {type: 'i', value: 0},
             eyePosition: {type: 'v3', value: new THREE.Vector3()},
-            texture0: { type: "t", value: textureLoader.load('images/lenna.png')},
-            texture1: { type: "t", value: textureLoader.load('images/baboon.png')}
+            lenna: { type: "t", value: textureLoader.load('images/lenna.png')},
+            baboon: { type: "t", value: textureLoader.load('images/baboon.png')},
+            pinholes: { type: "t", value: textureLoader.load('images/pinholes.png')},
+            views: { type: "t", value: textureLoader.load('images/views.png')}
         };
 
         // Setup material
@@ -106,8 +110,8 @@ var renderScene = {
                                             this.properties.eyePositionY,
                                             this.properties.eyePositionZ);
 
-        eyePosition.x += input.cameraTruck;
-        eyePosition.y += input.cameraPedestal;
+        eyePosition.x += input.deltaX;
+        eyePosition.y += input.deltaY;
 
         if (this.properties.eyeDistanceLocked) {
             eyePosition.normalize();
@@ -119,7 +123,7 @@ var renderScene = {
         this.properties.eyePositionY = eyePosition.y;
         this.properties.eyePositionZ = eyePosition.z;
 
-        this.properties.accommodationDistance += input.cameraFocus;
+        this.properties.accommodationDistance += input.deltaWheel;
     },
 
     updateUniforms: function (renderer, deltaTime) {

@@ -1,5 +1,5 @@
 var renderCanvas = {
-    renderer: new THREE.WebGLRenderer(),
+    renderer: new THREE.WebGLRenderer({preserveDrawingBuffer: true}),
     stats: new Stats(),
     gui: new dat.GUI(),
     renderScene: null,
@@ -8,22 +8,14 @@ var renderCanvas = {
     lastMouseY: null,
 
     input: {
-        cameraTruck: 0.0,
-        cameraPedestal: 0.0,
-        cameraDolly: 0.0,
-        cameraPan: 0.0,
-        cameraTilt: 0.0,
-        cameraRoll: 0.0,
-        cameraFocus: 0.0,
+        deltaX: 0.0,
+        deltaY: 0.0,
+        deltaWheel: 0.0,
 
         clear: function () {
-            this.cameraTruck = 0.0;
-            this.cameraPedestal = 0.0;
-            this.cameraDolly = 0.0;
-            this.cameraPan = 0.0;
-            this.cameraTilt = 0.0;
-            this.cameraRoll = 0.0;
-            this.cameraFocus = 0.0;
+            this.deltaX = 0.0;
+            this.deltaY = 0.0;
+            this.deltaWheel = 0.0;
         }
     },
 
@@ -33,22 +25,22 @@ var renderCanvas = {
 
         // Setup renderer
         this.renderer.setPixelRatio(window.devicePixelRatio);
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
         container.appendChild(this.renderer.domElement);
 
-        // Setup stats
-        container.appendChild(this.stats.dom);
-
         // Register window resize callback
-        this.onWindowResize();
         window.addEventListener('resize', this.onWindowResize.bind(this), false);
 
         // Setup input listeners
         container.addEventListener('mousemove', this.onMouseMove.bind(this), false);
         container.addEventListener('wheel', this.onWheel.bind(this), false);
 
+        // Setup stats
+        container.appendChild(this.stats.dom);
+
         // Setup scene (camera, uniforms, material, geometry, mesh...)
         this.renderScene = renderScene;
-        this.renderScene.setup(this.gui, this.onSceneSetupDone.bind(this));
+        this.renderScene.setup(this);
     },
 
     onWindowResize: function () {
@@ -88,12 +80,38 @@ var renderCanvas = {
         this.lastMouseY = mouseMoveEvent.clientY;
 
         if (mouseMoveEvent.buttons & 1) {
-            this.input.cameraTruck -= deltaX;
-            this.input.cameraPedestal += deltaY;
+            this.input.deltaX -= deltaX;
+            this.input.deltaY += deltaY;
         }
     },
 
     onWheel: function (wheelEvent) {
-        this.input.cameraFocus -= wheelEvent.deltaY * 0.01;
+        this.input.deltaWheel -= wheelEvent.deltaY * 0.01;
+    },
+
+    saveScreenshot: function () {
+        var imgData, imgNode;
+        try {
+            var strMime = "image/png";
+            imgData = this.renderer.domElement.toDataURL(strMime);
+            
+            this.saveFile(imgData.replace(strMime, "image/octet-stream"), "screenshot.png");
+        } catch (e) {
+            console.log(e);
+            return;
+        }
+    },
+
+    saveFile: function (strData, filename) {
+        var link = document.createElement('a');
+        if (typeof link.download === 'string') {
+            document.body.appendChild(link);
+            link.download = filename;
+            link.href = strData;
+            link.click();
+            document.body.removeChild(link);
+        } else {
+            location.replace(uri);
+        }
     }
 }

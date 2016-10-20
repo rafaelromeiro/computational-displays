@@ -12,8 +12,10 @@ uniform float accommodationDistance;
 uniform int pupilSamples;
 uniform vec3 eyePosition;
 
-uniform sampler2D texture0;
-uniform sampler2D texture1;
+uniform sampler2D lenna;
+uniform sampler2D baboon;
+uniform sampler2D pinholes;
+uniform sampler2D views;
 
 #define M_PI 3.1415926535897932384626433832795
 
@@ -30,7 +32,7 @@ vec2 intersectLayer(vec3 origin, vec3 direction, float layerZ) {
 }
 
 void main() {
-    vec4 backgroundColor = vec4(0.4, 0.4, 0.6, 1.0);
+    vec4 backgroundColor = vec4(0.4, 0.6, 0.2, 1.0);
 
     vec3 forwardVec = normalize(-eyePosition);
     vec3 leftVec = normalize(cross(forwardVec, vec3(0.0, 1.0, 0.0)));
@@ -54,8 +56,10 @@ void main() {
         vec2 layer0Coord = intersectLayer(pupilPoint, focusPoint - pupilPoint, 0.0);
         vec2 layer1Coord = intersectLayer(pupilPoint, focusPoint - pupilPoint, -displaySpacer);
 
-        if (insideTextureCoordRange(layer0Coord) && insideTextureCoordRange(layer1Coord))
-            retinaColor += (texture2D(texture0, layer0Coord) * texture2D(texture1, layer1Coord)) / float(pupilSamples);
+        if (insideTextureCoordRange(layer0Coord) && insideTextureCoordRange(layer1Coord)) {
+            if (true)
+                retinaColor += (texture2D(pinholes, layer0Coord) * texture2D(views, layer1Coord)) * 16.0 / float(pupilSamples);
+        }
         else
             retinaColor += backgroundColor / float(pupilSamples);
     }
