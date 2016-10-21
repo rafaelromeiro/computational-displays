@@ -32,6 +32,7 @@ vec4 intersectScene(vec3 rayOrigin, vec3 rayDirection) {
     rayColor = intersectSphere(rayOrigin, rayDirection, rayColor, vec3(40.0, 0.0, -200.0), 10.0);
     rayColor = intersectSphere(rayOrigin, rayDirection, rayColor, vec3(20.0, 0.0, -150.0), 10.0);
     rayColor = intersectSphere(rayOrigin, rayDirection, rayColor, vec3(0.0, 0.0, -100.0), 10.0);
+    rayColor = intersectSphere(rayOrigin, rayDirection, rayColor, vec3(0.0, 8.0, -30.0), 3.0);
 
     return rayColor;
 }

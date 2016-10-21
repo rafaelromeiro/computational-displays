@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Uniform Disk Sampling</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <style> body { margin: 0px; overflow: hidden; } </style>
+    </head>
+
+    <body>
+        <div id="container"></div>
+
+        <script id="vertexShader" type="x-shader/x-vertex">
+            void main() {
+                gl_Position = vec4( position, 1.0 );
+            }
+        </script>
+
+        <script id="fragmentShader" type="x-shader/x-fragment">
+            uniform vec2 resolution;
+            uniform int samples;
+            uniform float randomSeed;
+
+            #define M_PI 3.1415926535897932384626433832795
+
+            highp float rand(float seed, float v) {
+                highp float a = 12.9898;
+                highp float b = 78.233;
+                highp float c = 43758.5453;
+                highp float dt = dot(vec2(seed, v), vec2(a, b));
+                highp float sn = mod(dt, M_PI);
+                return fract(sin(sn) * c);
+            }
+
+            vec2 toUnitDisk(vec2 unitSquarePoint) {
+                float phi, r;
+                vec2 p = unitSquarePoint * 2.0 - 1.0;
+                if (p.x*p.x > p.y*p.y) {
+                    r = p.x;
+                    phi = (p.y / p.x) * (M_PI / 4.0);
+                } else {
+                    r = p.y;
+                    phi = (M_PI / 2.0) - (M_PI / 4.0) * (p.x / p.y);
+                }
+                return vec2(r * cos(phi), r * sin(phi));
+            }
+
+            vec2 sampleUnitDisk(vec3 p) {
+                float a = rand(rand(rand(17.0, p.x), p.y), p.z);
+                float b = rand(rand(rand(23.0, p.x), p.y), p.z);
+                return toUnitDisk(vec2(a, b));
+            }
+
+            void main() {
+                vec4 pointColor = vec4(1.0, 0.7, 0.0, 1.0);
+                vec4 circleColor = vec4(0.4, 0.4, 0.4, 1.0);
+                vec4 backgroundColor = vec4(0.4, 0.4, 0.6, 1.0);
+
+                vec2 p = (2.0 * gl_FragCoord.xy - resolution) / resolution.y;
+                gl_FragColor = mix(backgroundColor, circleColor, step(dot(p, p), 1.0));
+
+                // Spread points over disk
+                const float MAX_SAMPLES = 2048.0;
+                for (float k = 0.0; k < MAX_SAMPLES; k++) {
+                    if (k >= float(samples)) break;
+                    vec2 sample = sampleUnitDisk(vec3(randomSeed, randomSeed, k));
+                    gl_FragColor = mix(gl_FragColor, pointColor, step(distance(p, sample), 0.01));
+                }
+            }
+        </script>
+
+        <script src="js/lib/three.min.js"></script>
+        <script src="js/lib/stats.min.js"></script>
+        <script src="js/lib/dat.gui.min.js"></script>
+
+        <script>
+            var renderer, stats, gui;
+            var camera, uniforms, scene;
+
+            init();
+            render();
+
+            function init() {
+                // Get the container html element
+                var container = document.getElementById('container');
+
+                // Setup renderer
+                renderer = new THREE.WebGLRenderer();
+                renderer.setPixelRatio(window.devicePixelRatio);
+                container.appendChild(renderer.domElement);
+
+                // Setup stats
+                stats = new Stats();
+                container.appendChild(stats.dom);
+
+                // Setup GUI
+                gui = new dat.GUI();
+                var parameters = {samples: 256, randomSeed: 15485.0};
+                gui.add(parameters, 'samples', 0, 1024).onChange(function (value) { uniforms.samples.value = value; });
+                gui.add(parameters, 'randomSeed').onChange(function (value) { uniforms.randomSeed.value = value; });
+
+                // Setup camera
+                camera = new THREE.Camera();
+                camera.position.z = 1;
+
+                // Setup uniforms
+                uniforms = {
+                    resolution: {type: 'v2', value: new THREE.Vector2()},
+                    samples: {type: 'i', value: 256},
+                    randomSeed: {type: 'f', value: 15485.0}
+                };
+
+                // Setup material
+                var material = new THREE.ShaderMaterial( {
+                    uniforms: uniforms,
+                    vertexShader: document.getElementById( 'vertexShader' ).textContent,
+                    fragmentShader: document.getElementById( 'fragmentShader' ).textContent
+                } );
+
+                // Setup geometry
+                var geometry = new THREE.PlaneBufferGeometry(2, 2);
+
+                // Setup mesh
+                var mesh = new THREE.Mesh(geometry, material);
+
+                // Setup scene
+                scene = new THREE.Scene();
+                scene.add(mesh);
+
+                // Register window resize callback
+                onWindowResize();
+                window.addEventListener('resize', onWindowResize, false);
+            }
+
+            function onWindowResize( event ) {
+                renderer.setSize( window.innerWidth, window.innerHeight );
+                uniforms.resolution.value.x = renderer.domElement.width;
+                uniforms.resolution.value.y = renderer.domElement.height;
+            }
+
+            function render() {
+                stats.begin();
+                renderer.render( scene, camera );
+                stats.end();
+                requestAnimationFrame( render );
+            }
+        </script>
+    </body>
+</html>

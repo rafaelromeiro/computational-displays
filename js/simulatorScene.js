@@ -76,6 +76,8 @@ var simulatorScene = {
             pinholes: { type: "t", value: textureLoader.load('images/pinholes.png')},
             views: { type: "t", value: textureLoader.load('images/views.png')}
         };
+        this.uniforms.pinholes.value.magFilter = THREE.NearestFilter;
+        this.uniforms.pinholes.value.minFilter = THREE.NearestFilter;
 
         // Setup material
         var material = new THREE.ShaderMaterial( {
