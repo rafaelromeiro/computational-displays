@@ -73,8 +73,8 @@ var simulatorScene = {
             eyePosition: {type: 'v3', value: new THREE.Vector3()},
             lenna: { type: "t", value: textureLoader.load('images/lenna.png')},
             baboon: { type: "t", value: textureLoader.load('images/baboon.png')},
-            pinholes: { type: "t", value: textureLoader.load('images/pinholes.png')},
-            views: { type: "t", value: textureLoader.load('images/views.png')}
+            pinholes: { type: "t", value: textureLoader.load('images/pinholes_hfov.png')},
+            views: { type: "t", value: textureLoader.load('images/views_hfov.png')}
         };
         this.uniforms.pinholes.value.magFilter = THREE.NearestFilter;
         this.uniforms.pinholes.value.minFilter = THREE.NearestFilter;

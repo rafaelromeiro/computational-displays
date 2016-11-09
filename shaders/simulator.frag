@@ -37,6 +37,7 @@ vec2 toUnitDisk(vec2 unitSquarePoint) {
         r = p.x;
         phi = (p.y / p.x) * (M_PI / 4.0);
     } else {
+        if (p.y == 0.0) return vec2(0.0);
         r = p.y;
         phi = (M_PI / 2.0) - (M_PI / 4.0) * (p.x / p.y);
     }
@@ -91,6 +92,8 @@ void main() {
         if (insideTextureCoordRange(layer0Coord) && insideTextureCoordRange(layer1Coord)) {
             retinaColor += (texture2D(pinholes, layer0Coord) * texture2D(views, layer1Coord));
             if (length(texture2D(pinholes, layer0Coord).xyz) > 0.0) validRays += 1.0;
+            //retinaColor += (texture2D(lenna, layer0Coord) * texture2D(baboon, layer1Coord));
+            //if (length(texture2D(lenna, layer0Coord).xyz) > 0.0) validRays += 1.0;
         }
         else
             retinaColor += backgroundColor / float(pupilSamples);
