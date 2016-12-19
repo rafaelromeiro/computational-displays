@@ -75,14 +75,12 @@ void main() {
 
     vec3 focusPoint = eyePosition + (eyePosition - retinaPoint) * accommodationDistance / focalLength;
 
-    // Spread points over disk through Vogel's method
-    const float goldenAngle =  M_PI * (3.0 - sqrt(5.0));
     const float MAX_SAMPLES = 2048.0;
     vec4 retinaColor = vec4(0.0);
     float validRays = 0.0;
     for (float k = 0.0; k < MAX_SAMPLES; k++) {
         if (k >= float(pupilSamples)) break;
-        float theta = k * goldenAngle;
+        
         vec2 pupilCoord = sampleUnitDisk(vec3(gl_FragCoord.xy, k));
         vec3 pupilPoint = eyePosition + (leftVec * pupilCoord.x + upVec * pupilCoord.y) * pupilDiameter;
 
