@@ -87,10 +87,18 @@ void main() {
         vec2 stCoord = intersectLayer(pupilPoint, focusPoint - pupilPoint, 0.0) / stSize + 0.5;
         vec2 uvCoord = intersectLayer(pupilPoint, focusPoint - pupilPoint, stuvSpacer) / uvSize + 0.5;
 
-        vec2 texCoord = (floor(uvCoord * uvResolution) + stCoord) / uvResolution;
+        if (insideTextureCoordRange(stCoord) && insideTextureCoordRange(uvCoord)) {
+            vec2 uvIndex = uvCoord * (uvResolution - vec2(1.0, 1.0));
 
-        if (insideTextureCoordRange(texCoord))
-            retinaColor += texture2D(bunnies, texCoord);
+            vec2 texCoordLL = (floor(uvIndex) + vec2(0.0, 0.0) + stCoord) / uvResolution;
+            vec2 texCoordLR = (floor(uvIndex) + vec2(1.0, 0.0) + stCoord) / uvResolution;
+            vec2 texCoordUL = (floor(uvIndex) + vec2(0.0, 1.0) + stCoord) / uvResolution;
+            vec2 texCoordUR = (floor(uvIndex) + vec2(1.0, 1.0) + stCoord) / uvResolution;
+
+            vec4 lower = mix(texture2D(bunnies, texCoordLL), texture2D(bunnies, texCoordLR), fract(uvIndex.x));
+            vec4 upper = mix(texture2D(bunnies, texCoordUL), texture2D(bunnies, texCoordUR), fract(uvIndex.x));
+            retinaColor += mix(lower, upper, fract(uvIndex.y));
+        }
         else
             retinaColor += backgroundColor;
     }

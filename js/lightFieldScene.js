@@ -6,23 +6,23 @@ var lightFieldScene = {
     properties: {
         stWidth: 48.0,
         stHeight: 30.0,
-        uvWidth: 106.0,
-        uvHeight: 106.0,
+        uvWidth: 84.0,
+        uvHeight: 84.0,
         uvHorizontalResolution: 5.0,
         uvVerticalResolution: 5.0,
         stuvSpacer: 237.0,
 
-        pupilDiameter: 8.0,
-        retinaDiameter: 22.0,
+        pupilDiameter: 16.0,
+        retinaDiameter: 6.0,
         focalLength: 24.0,
-        pupilSamples: 64,
+        pupilSamples: 256,
 
-        accommodationDistance: 50.0,
-        eyeDistance: 50.0,
+        accommodationDistance: 150.0,
+        eyeDistance: 150.0,
         eyeDistanceLocked: true,
         eyePositionX: 0.0,
         eyePositionY: 0.0,
-        eyePositionZ: 50.0,
+        eyePositionZ: 150.0,
 
         setupGUI: function (canvas) {
             var f1 = canvas.gui.addFolder('Light Field Properties');

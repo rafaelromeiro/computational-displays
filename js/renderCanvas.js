@@ -86,7 +86,7 @@ var renderCanvas = {
     },
 
     onWheel: function (wheelEvent) {
-        this.input.deltaWheel -= wheelEvent.deltaY * 0.01;
+        this.input.deltaWheel -= wheelEvent.deltaY * 0.001;
     },
 
     saveScreenshot: function () {
