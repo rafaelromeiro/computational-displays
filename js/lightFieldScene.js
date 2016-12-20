@@ -88,8 +88,7 @@ var lightFieldScene = {
             pupilSamples: {type: 'i', value: 0},
             eyePosition: {type: 'v3', value: new THREE.Vector3()},
 
-            bunnies: { type: "t", value: textureLoader.load('images/bunnies.png')},
-            teapot: { type: "t", value: textureLoader.load('images/teapot.png')},
+            lightField: { type: "t", value: textureLoader.load('images/bunnies.png')},
         };
 
         // Setup material

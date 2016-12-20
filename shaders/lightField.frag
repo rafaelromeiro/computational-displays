@@ -15,8 +15,7 @@ uniform float accommodationDistance;
 uniform int pupilSamples;
 uniform vec3 eyePosition;
 
-uniform sampler2D bunnies;
-uniform sampler2D teapot;
+uniform sampler2D lightField;
 
 #define M_PI 3.1415926535897932384626433832795
 
@@ -95,8 +94,8 @@ void main() {
             vec2 texCoordUL = (floor(uvIndex) + vec2(0.0, 1.0) + stCoord) / uvResolution;
             vec2 texCoordUR = (floor(uvIndex) + vec2(1.0, 1.0) + stCoord) / uvResolution;
 
-            vec4 lower = mix(texture2D(bunnies, texCoordLL), texture2D(bunnies, texCoordLR), fract(uvIndex.x));
-            vec4 upper = mix(texture2D(bunnies, texCoordUL), texture2D(bunnies, texCoordUR), fract(uvIndex.x));
+            vec4 lower = mix(texture2D(lightField, texCoordLL), texture2D(lightField, texCoordLR), fract(uvIndex.x));
+            vec4 upper = mix(texture2D(lightField, texCoordUL), texture2D(lightField, texCoordUR), fract(uvIndex.x));
             retinaColor += mix(lower, upper, fract(uvIndex.y));
         }
         else
