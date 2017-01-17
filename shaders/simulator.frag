@@ -12,10 +12,8 @@ uniform float accommodationDistance;
 uniform int pupilSamples;
 uniform vec3 eyePosition;
 
-uniform sampler2D lenna;
-uniform sampler2D baboon;
-uniform sampler2D pinholes;
-uniform sampler2D views;
+uniform sampler2D layer0;
+uniform sampler2D layer1;
 
 #define M_PI 3.1415926535897932384626433832795
 
@@ -77,7 +75,6 @@ void main() {
 
     const float MAX_SAMPLES = 2048.0;
     vec4 retinaColor = vec4(0.0);
-    float validRays = 0.0;
     for (float k = 0.0; k < MAX_SAMPLES; k++) {
         if (k >= float(pupilSamples)) break;
         
@@ -88,14 +85,11 @@ void main() {
         vec2 layer1Coord = intersectLayer(pupilPoint, focusPoint - pupilPoint, -displaySpacer);
 
         if (insideTextureCoordRange(layer0Coord) && insideTextureCoordRange(layer1Coord)) {
-            retinaColor += (texture2D(pinholes, layer0Coord) * texture2D(views, layer1Coord));
-            if (length(texture2D(pinholes, layer0Coord).xyz) > 0.0) validRays += 1.0;
-            //retinaColor += (texture2D(lenna, layer0Coord) * texture2D(baboon, layer1Coord));
-            //if (length(texture2D(lenna, layer0Coord).xyz) > 0.0) validRays += 1.0;
+            retinaColor += (texture2D(layer0, layer0Coord) * texture2D(layer1, layer1Coord)) / float(pupilSamples);
         }
         else
             retinaColor += backgroundColor / float(pupilSamples);
     }
 
-    gl_FragColor = vec4((retinaColor/validRays).rgb, 1.0);
+    gl_FragColor = vec4(retinaColor.rgb, 1.0);
 }

@@ -4,19 +4,21 @@ var simulatorScene = {
     uniforms: null,
 
     properties: {
-        displayWidth: 40.0,
-        displayHeight: 40.0,
+        displayWidth: 60.0,
+        displayHeight: 60.0,
         displaySpacer: 10.0,
-        pupilDiameter: 8.0,
-        retinaDiameter: 22.0,
+
+        pupilDiameter: 16.0,
+        retinaDiameter: 6.0,
         focalLength: 24.0,
-        accommodationDistance: 50.0,
-        pupilSamples: 64,
-        eyeDistance: 50.0,
+        pupilSamples: 256,
+
+        accommodationDistance: 150.0,
+        eyeDistance: 150.0,
         eyeDistanceLocked: true,
         eyePositionX: 0.0,
         eyePositionY: 0.0,
-        eyePositionZ: 50.0,
+        eyePositionZ: 150.0,
 
         setupGUI: function (canvas) {
             var f1 = canvas.gui.addFolder('Display Properties');
@@ -71,13 +73,13 @@ var simulatorScene = {
             accommodationDistance: {type: 'f', value: 0.0},
             pupilSamples: {type: 'i', value: 0},
             eyePosition: {type: 'v3', value: new THREE.Vector3()},
-            lenna: { type: "t", value: textureLoader.load('images/lenna.png')},
-            baboon: { type: "t", value: textureLoader.load('images/baboon.png')},
-            pinholes: { type: "t", value: textureLoader.load('images/pinholes_hfov.png')},
-            views: { type: "t", value: textureLoader.load('images/views_hfov.png')}
+            layer0: {type: "t", value: textureLoader.load('images/layer0.png')},
+            layer1: {type: "t", value: textureLoader.load('images/layer1.png')}
         };
-        this.uniforms.pinholes.value.magFilter = THREE.NearestFilter;
-        this.uniforms.pinholes.value.minFilter = THREE.NearestFilter;
+        this.uniforms.layer0.value.magFilter = THREE.NearestFilter;
+        this.uniforms.layer0.value.minFilter = THREE.NearestFilter;
+        this.uniforms.layer1.value.magFilter = THREE.NearestFilter;
+        this.uniforms.layer1.value.minFilter = THREE.NearestFilter;
 
         // Setup material
         var material = new THREE.ShaderMaterial( {
