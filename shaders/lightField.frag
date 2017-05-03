@@ -1,28 +1,14 @@
-uniform float deltaTime;
-uniform vec2 resolution;
-uniform int currentDisplayUpdate;
-
-uniform vec2 display1Resolution;
-uniform vec2 display2Resolution;
-uniform vec3 display1Size;
-uniform vec3 display2Size;
-
-uniform int pupilSamples;
-uniform float pupilDiameter;
-uniform float retinaHeight;
-uniform float focalLength;
-uniform float accommodationDistance;
-
-uniform vec3 eyePosition;
-
-uniform sampler2D display1;
-uniform sampler2D display2;
-uniform sampler2D lightField;
-
-#define M_PI 3.1415926535897932384626433832795
+//#include "header.frag"
 
 void main() {
-    vec2 lightFieldResolution = display1Resolution * display2Resolution;
+    vec2 angularCoord = (floor(gl_FragCoord.xy / spatialResolution) + 0.5) / angularResolution;
+    vec2 spatialCoord = fract(gl_FragCoord.xy / spatialResolution);
 
-    gl_FragColor = vec4(gl_FragCoord.xy / lightFieldResolution, 0.0, 1.0);
+    vec3 angularPoint = vec3(angularCoord - 0.5, 1.0) * angularSize;
+    vec3 spatialPoint = vec3(spatialCoord - 0.5, 1.0) * spatialSize;
+
+    vec3 rayOrigin = angularPoint;
+    vec3 rayDirection = normalize(spatialPoint - angularPoint);
+
+    gl_FragColor = vec4(raycastScene(rayOrigin, rayDirection), 1.0);
 }

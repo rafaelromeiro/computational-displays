@@ -45,9 +45,9 @@
                 return vec2(r * cos(phi), r * sin(phi));
             }
 
-            vec2 sampleUnitDisk(vec3 p) {
-                float a = rand(rand(rand(17.0, p.x), p.y), p.z);
-                float b = rand(rand(rand(23.0, p.x), p.y), p.z);
+            vec2 sampleUnitDisk(float v) {
+                float a = rand(17.0, v);
+                float b = rand(23.0, v);
                 return toUnitDisk(vec2(a, b));
             }
 
@@ -63,7 +63,7 @@
                 const float MAX_SAMPLES = 2048.0;
                 for (float k = 0.0; k < MAX_SAMPLES; k++) {
                     if (k >= float(samples)) break;
-                    vec2 sample = sampleUnitDisk(vec3(randomSeed, randomSeed, k));
+                    vec2 sample = sampleUnitDisk(rand(randomSeed, k));
                     gl_FragColor = mix(gl_FragColor, pointColor, step(distance(p, sample), 0.01));
                 }
             }
@@ -139,9 +139,8 @@
             }
 
             function render() {
-                stats.begin();
                 renderer.render( scene, camera );
-                stats.end();
+                stats.update();
                 requestAnimationFrame( render );
             }
         </script>

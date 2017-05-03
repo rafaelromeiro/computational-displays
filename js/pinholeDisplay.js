@@ -1,4 +1,4 @@
-var pinholeDisplayScene = {
+var pinholeDisplay = {
     camera: new THREE.Camera(),
     scene: new THREE.Scene(),
     uniforms: null,

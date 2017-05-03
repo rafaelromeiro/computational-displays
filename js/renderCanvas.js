@@ -2,7 +2,7 @@ var renderCanvas = {
     renderer: new THREE.WebGLRenderer({preserveDrawingBuffer: true}),
     stats: new Stats(),
     gui: new dat.GUI(),
-    renderScene: null,
+    renderContent: null,
     lastTimestamp: null,
     lastMouseX: null,
     lastMouseY: null,
@@ -19,7 +19,7 @@ var renderCanvas = {
         }
     },
 
-    setup: function (renderScene) {
+    setup: function (renderContent) {
         // Get the container html element
         var container = document.getElementById('container');
 
@@ -39,8 +39,8 @@ var renderCanvas = {
         container.appendChild(this.stats.dom);
 
         // Setup scene (camera, uniforms, material, geometry, mesh...)
-        this.renderScene = renderScene;
-        this.renderScene.setup(this);
+        this.renderContent = renderContent;
+        this.renderContent.setup(this);
     },
 
     onWindowResize: function () {
@@ -53,16 +53,18 @@ var renderCanvas = {
         requestAnimationFrame(this.render.bind(this));
     },
 
-    render: function (newTimestamp) {
+    render: function () {
+        newTimestamp = 10;
         // Compute deltaTime with elapsed time since last frame
         if (!this.lastTimestamp) this.lastTimestamp = newTimestamp;
         var deltaTime = newTimestamp - this.lastTimestamp;
         this.lastTimestamp = newTimestamp;
 
-        // Render scene monitored by stats
-        this.stats.begin();
-        this.renderScene.render(this.renderer, deltaTime, this.input);
-        this.stats.end();
+        // Render
+        this.renderContent.render(this.renderer, deltaTime, this.input);
+
+        // Update stats
+        this.stats.update();
 
         // Clear inputs
         this.input.clear();
