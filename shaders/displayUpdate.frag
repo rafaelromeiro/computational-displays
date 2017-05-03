@@ -22,7 +22,7 @@ uniform sampler2D lightField;
 #define M_PI 3.1415926535897932384626433832795
 
 void main() {
-    vec2 lightFieldResolution = display1Resolution * display2Resolution;
+    vec2 displayResolution = currentDisplayUpdate < 2 ? display1Resolution : display2Resolution;
 
-    gl_FragColor = vec4(gl_FragCoord.xy / lightFieldResolution, 0.0, 1.0);
+    gl_FragColor = vec4(gl_FragCoord.xy / displayResolution, 0.0, 1.0);
 }
