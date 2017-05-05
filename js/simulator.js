@@ -4,37 +4,46 @@ var simulator = {
     scene: new THREE.Scene(),
     uniforms: null,
 
+    imageExportShader: null,
     observerShader: null,
     lightFieldShader: null,
+
+    displayPhiShader: null,
+    displaySqrShader: null,
     displayUpdateShader: null,
-    imageExportShader: null,
 
     lightFieldRenderTarget: null,
+
+    display1PhiRenderTarget: null,
+    display1SqrRenderTarget: null,
     display1RenderTarget: null,
+
+    display2PhiRenderTarget: null,
+    display2SqrRenderTarget: null,
     display2RenderTarget: null,
 
     properties: {
         angularResX: 64.0,
         angularResY: 64.0,
-        angularHeight: 100.0,
+        angularHeight: 50.0,
         angularDistance: 50.0,
 
         spatialResX: 64.0,
         spatialResY: 64.0,
-        spatialHeight: 100.0,
-        spatialDistance: 100.0,
+        spatialHeight: 500.0,
+        spatialDistance: 500.0,
 
-        display1ResX: 16.0,
-        display1ResY: 16.0,
-        display1Height: 100.0,
+        display1ResX: 64.0,
+        display1ResY: 64.0,
+        display1Height: 50.0,
         display1Distance: 50.0,
 
-        display2ResX: 16.0,
-        display2ResY: 16.0,
-        display2Height: 100.0,
-        display2Distance: 100.0,
+        display2ResX: 64.0,
+        display2ResY: 64.0,
+        display2Height: 500.0,
+        display2Distance: 500.0,
 
-        pupilSamples: 8,
+        pupilSamples: 256,
         pupilDiameter: 5.0,
         verticalFOV: 60.0,
         focalLength: 17.0,
@@ -102,8 +111,10 @@ var simulator = {
         this.renderer = canvas.renderer;
 
         // Fetch all the setup resources (shaders...)
-        var urls = ['shaders/basic.vert', 'shaders/header.frag', 'shaders/observer.frag',
-                    'shaders/displayUpdate.frag', 'shaders/lightField.frag', 'shaders/imageExport.frag'];
+        var urls = ['shaders/basic.vert', 'shaders/header.frag',
+                    'shaders/observer.frag', 'shaders/lightField.frag',
+                    'shaders/displayPhi.frag', 'shaders/displaySqr.frag',
+                    'shaders/displayUpdate.frag', 'shaders/imageExport.frag'];
         var requests = urls.map(url => fetch(url).then(response => response.text()));
         Promise.all(requests).then(resources => { this.onSetupResourcesReady(resources); }).then(canvas.onSetupDone.bind(canvas));
     },
@@ -121,16 +132,22 @@ var simulator = {
         var vertexShader = resources[0];
         var headerFragmentShader = resources[1];
         var observerFragmentShader = headerFragmentShader.concat(resources[2]);
-        var displayUpdateFragmentShader = headerFragmentShader.concat(resources[3]);
-        var lightFieldFragmentShader = headerFragmentShader.concat(resources[4]);
-        var imageExportFragmentShader = headerFragmentShader.concat(resources[5]);
+        var lightFieldFragmentShader = headerFragmentShader.concat(resources[3]);
+        var displayPhiFragmentShader = headerFragmentShader.concat(resources[4]);
+        var displaySqrFragmentShader = headerFragmentShader.concat(resources[5]);
+        var displayUpdateFragmentShader = headerFragmentShader.concat(resources[6]);
+        var imageExportFragmentShader = headerFragmentShader.concat(resources[7]);
         
         // Setup camera (Fixed quad-viewing camera, not our ray-casting camera)
         this.camera.position.z = 1;
 
         // Setup render targets
         this.lightFieldRenderTarget = new THREE.WebGLRenderTarget(2, 2, {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter});
+        this.display1PhiRenderTarget = new THREE.WebGLRenderTarget(2, 2, {minFilter: THREE.NearestMipMapNearestFilter, magFilter: THREE.NearestFilter});
+        this.display1SqrRenderTarget = new THREE.WebGLRenderTarget(2, 2, {minFilter: THREE.NearestMipMapNearestFilter, magFilter: THREE.NearestFilter});
         this.display1RenderTarget = new THREE.WebGLRenderTarget(2, 2, {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter});
+        this.display2PhiRenderTarget = new THREE.WebGLRenderTarget(2, 2, {minFilter: THREE.NearestMipMapNearestFilter, magFilter: THREE.NearestFilter});
+        this.display2SqrRenderTarget = new THREE.WebGLRenderTarget(2, 2, {minFilter: THREE.NearestMipMapNearestFilter, magFilter: THREE.NearestFilter});
         this.display2RenderTarget = new THREE.WebGLRenderTarget(2, 2, {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter});
 
         // Setup uniforms
@@ -161,16 +178,27 @@ var simulator = {
             renderMode: {type: 'i', value: 0},
             scene: {type: 'i', value: 0},
 
+            lightField: {type: "t", value: this.lightFieldRenderTarget.texture},
+
+            display1Phi: {type: "t", value: this.display1PhiRenderTarget.texture},
+            display1Sqr: {type: "t", value: this.display1SqrRenderTarget.texture},
             display1: {type: "t", value: this.display1RenderTarget.texture},
-            display2: {type: "t", value: this.display2RenderTarget.texture},
-            lightField: {type: "t", value: this.lightFieldRenderTarget.texture}
+
+            display2Phi: {type: "t", value: this.display2PhiRenderTarget.texture},
+            display2Sqr: {type: "t", value: this.display2SqrRenderTarget.texture},
+            display2: {type: "t", value: this.display2RenderTarget.texture}
         };
 
         // Setup shader materials
         this.observerShader = this.setupShader(vertexShader, observerFragmentShader);
         this.lightFieldShader = this.setupShader(vertexShader, lightFieldFragmentShader);
+        this.displayPhiShader = this.setupShader(vertexShader, displayPhiFragmentShader);
+        this.displaySqrShader = this.setupShader(vertexShader, displaySqrFragmentShader);
         this.displayUpdateShader = this.setupShader(vertexShader, displayUpdateFragmentShader);
         this.imageExportShader = this.setupShader(vertexShader, imageExportFragmentShader);
+
+        // Enable GL_EXT_shader_texture_lod extension
+        this.displayUpdateShader.extensions.shaderTextureLOD = true;
 
         // Setup scene with a quad mesh covering whole viewport
         this.scene.add(new THREE.Mesh(new THREE.PlaneBufferGeometry(2, 2)));
@@ -209,19 +237,43 @@ var simulator = {
     },
 
     updateTensorDisplay: function () {
-        this.scene.overrideMaterial = this.displayUpdateShader;
-        this.uniforms.currentDisplayUpdate.value = 1;
-        this.renderer.render(this.scene, this.camera, this.display1RenderTarget);
+        var phiResX = this.properties.display1ResX * this.properties.display2ResX;
+        var phiResY = this.properties.display1ResY * this.properties.display2ResY;
+
+        // Update display 1
         this.uniforms.currentDisplayUpdate.value = 2;
+        this.scene.overrideMaterial = this.displayPhiShader;
+        this.display2PhiRenderTarget.setSize(phiResX, phiResY);
+        this.renderer.render(this.scene, this.camera, this.display2PhiRenderTarget);
+        this.scene.overrideMaterial = this.displaySqrShader;
+        this.display2SqrRenderTarget.setSize(this.properties.display2ResX, this.properties.display2ResY);
+        this.renderer.render(this.scene, this.camera, this.display2SqrRenderTarget);
+        this.uniforms.currentDisplayUpdate.value = 1;
+        this.scene.overrideMaterial = this.displayUpdateShader;
+        this.display1RenderTarget.setSize(this.properties.display1ResX, this.properties.display1ResY);
+        this.renderer.render(this.scene, this.camera, this.display1RenderTarget);
+
+        // Update display 2
+        this.uniforms.currentDisplayUpdate.value = 1;
+        this.scene.overrideMaterial = this.displayPhiShader;
+        this.display1PhiRenderTarget.setSize(phiResX, phiResY);
+        this.renderer.render(this.scene, this.camera, this.display1PhiRenderTarget);
+        this.scene.overrideMaterial = this.displaySqrShader;
+        this.display1SqrRenderTarget.setSize(this.properties.display1ResX, this.properties.display1ResY);
+        this.renderer.render(this.scene, this.camera, this.display1SqrRenderTarget);
+        this.uniforms.currentDisplayUpdate.value = 2;
+        this.scene.overrideMaterial = this.displayUpdateShader;
+        this.display2RenderTarget.setSize(this.properties.display2ResX, this.properties.display2ResY);
         this.renderer.render(this.scene, this.camera, this.display2RenderTarget);
     },
 
     resetTensorDisplay: function () {
+        this.uniforms.currentDisplayUpdate.value = 0;
+
         this.display1RenderTarget.setSize(this.properties.display1ResX, this.properties.display1ResY);
         this.display2RenderTarget.setSize(this.properties.display2ResX, this.properties.display2ResY);
 
         this.scene.overrideMaterial = this.displayUpdateShader;
-        this.uniforms.currentDisplayUpdate.value = 0;
         this.renderer.render(this.scene, this.camera, this.display1RenderTarget);
         this.renderer.render(this.scene, this.camera, this.display2RenderTarget);
     },

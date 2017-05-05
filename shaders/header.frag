@@ -23,9 +23,15 @@ uniform vec3 eyePosition;
 uniform int renderMode;
 uniform int scene;
 
-uniform sampler2D display1;
-uniform sampler2D display2;
 uniform sampler2D lightField;
+
+uniform sampler2D display1Phi;
+uniform sampler2D display1Sqr;
+uniform sampler2D display1;
+
+uniform sampler2D display2Phi;
+uniform sampler2D display2Sqr;
+uniform sampler2D display2;
 
 #define M_PI 3.1415926535897932384626433832795
 
@@ -119,7 +125,7 @@ vec3 raycastLightField(vec3 rayOrigin, vec3 rayDirection) {
 
     if (insideTextureCoordRange(angularCoord) && insideTextureCoordRange(spatialCoord)) {
         vec2 lightFieldCoord = (floor(angularCoord * angularResolution) + spatialCoord) / angularResolution;
-        rayColor = texture2D(lightField, lightFieldCoord).xyz;
+        rayColor = texture2D(lightField, lightFieldCoord).rgb;
     }
 
     return rayColor;
@@ -133,9 +139,9 @@ vec3 raycastTensorDisplay(vec3 rayOrigin, vec3 rayDirection) {
     vec2 display2Coord = intersectLayer(rayOrigin, rayDirection, display2Size);
 
     if (insideTextureCoordRange(display1Coord))
-        rayColor *= texture2D(display1, display1Coord).xyz;
+        rayColor *= texture2D(display1, display1Coord).rgb;
     if (insideTextureCoordRange(display2Coord))
-        rayColor *= texture2D(display2, display2Coord).xyz;
+        rayColor *= texture2D(display2, display2Coord).rgb;
 
     return rayColor;
 }
