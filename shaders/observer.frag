@@ -18,9 +18,9 @@ void main() {
         vec3 rayColor = vec3(1.0, 0.0, 1.0);
 
         // Render mode (scene: 1, light field: 2, tensor display: 3)
-        if (renderMode == 1) rayColor = raycastScene(rayOrigin, rayDirection);
-        if (renderMode == 2) rayColor = raycastLightField(rayOrigin, rayDirection);
-        if (renderMode == 3) rayColor = raycastTensorDisplay(rayOrigin, rayDirection);
+        if (renderMode == 0) rayColor = raycastScene(rayOrigin, rayDirection);
+        if (renderMode == 1) rayColor = raycastLightField(rayOrigin, rayDirection);
+        if (renderMode == 2) rayColor = raycastTensorDisplay(rayOrigin, rayDirection);
 
         retinaColor += rayColor;
     }

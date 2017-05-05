@@ -1,6 +1,6 @@
-uniform float deltaTime;
 uniform vec2 resolution;
 uniform int currentDisplayUpdate;
+uniform int imageExport;
 
 uniform vec2 angularResolution;
 uniform vec2 spatialResolution;
@@ -89,7 +89,8 @@ vec3 intersectSphere(vec3 rayOrigin, vec3 rayDirection, vec3 rayColor, vec3 sphe
 vec3 raycastScene(vec3 rayOrigin, vec3 rayDirection) {
     vec3 rayColor;
 
-    if (scene == 1) {
+    // Scene: spheres
+    if (scene == 0) {
         rayColor = vec3(0.7, 0.7, 1.0);
         rayColor = intersectSphere(rayOrigin, rayDirection, rayColor, vec3(-500.0, -1000.0, -4000.0), 200.0);
         rayColor = intersectSphere(rayOrigin, rayDirection, rayColor, vec3(-500.0, 500.0, -3000.0), 200.0);
@@ -101,7 +102,8 @@ vec3 raycastScene(vec3 rayOrigin, vec3 rayDirection) {
         rayColor = intersectSphere(rayOrigin, rayDirection, rayColor, vec3(0.0, 8.0, -50.0), 5.0);
     }
 
-    if (scene == 2) {
+    // Scene: test
+    if (scene == 1) {
         rayColor = vec3(0.2, 1.0, 0.6);
     }
 

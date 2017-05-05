@@ -28,9 +28,6 @@ var renderCanvas = {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         container.appendChild(this.renderer.domElement);
 
-        // Register window resize callback
-        window.addEventListener('resize', this.onWindowResize.bind(this), false);
-
         // Setup input listeners
         container.addEventListener('mousemove', this.onMouseMove.bind(this), false);
         container.addEventListener('wheel', this.onWheel.bind(this), false);
@@ -43,12 +40,7 @@ var renderCanvas = {
         this.renderContent.setup(this);
     },
 
-    onWindowResize: function () {
-        // Update renderer width and height
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-    },
-
-    onSceneSetupDone: function() {
+    onSetupDone: function() {
         // Request first repaint using render
         requestAnimationFrame(this.render.bind(this));
     },
@@ -60,8 +52,11 @@ var renderCanvas = {
         var deltaTime = newTimestamp - this.lastTimestamp;
         this.lastTimestamp = newTimestamp;
 
+        // Update renderer viewport with window size
+        this.renderer.setSize(window.innerWidth, window.innerHeight)
+
         // Render
-        this.renderContent.render(this.renderer, deltaTime, this.input);
+        this.renderContent.render(deltaTime, this.input);
 
         // Update stats
         this.stats.update();
@@ -89,31 +84,5 @@ var renderCanvas = {
 
     onWheel: function (wheelEvent) {
         this.input.deltaWheel -= wheelEvent.deltaY * 0.001;
-    },
-
-    saveScreenshot: function () {
-        var imgData, imgNode;
-        try {
-            var strMime = "image/png";
-            imgData = this.renderer.domElement.toDataURL(strMime);
-            
-            this.saveFile(imgData.replace(strMime, "image/octet-stream"), "screenshot.png");
-        } catch (e) {
-            console.log(e);
-            return;
-        }
-    },
-
-    saveFile: function (strData, filename) {
-        var link = document.createElement('a');
-        if (typeof link.download === 'string') {
-            document.body.appendChild(link);
-            link.download = filename;
-            link.href = strData;
-            link.click();
-            document.body.removeChild(link);
-        } else {
-            location.replace(uri);
-        }
     }
 }
