@@ -1,5 +1,4 @@
 uniform vec2 resolution;
-uniform int currentDisplayUpdate;
 uniform int imageExport;
 
 uniform vec2 angularResolution;
@@ -22,15 +21,11 @@ uniform vec3 eyePosition;
 
 uniform int renderMode;
 uniform int scene;
+uniform int interpolationMode;
 
 uniform sampler2D lightField;
-
-uniform sampler2D display1Phi;
-uniform sampler2D display1Sqr;
+uniform sampler2D tensorField;
 uniform sampler2D display1;
-
-uniform sampler2D display2Phi;
-uniform sampler2D display2Sqr;
 uniform sampler2D display2;
 
 #define M_PI 3.1415926535897932384626433832795
@@ -98,13 +93,13 @@ vec3 raycastScene(vec3 rayOrigin, vec3 rayDirection) {
     // Scene: spheres
     if (scene == 0) {
         rayColor = vec3(0.7, 0.7, 1.0);
-        rayColor = intersectSphere(rayOrigin, rayDirection, rayColor, vec3(-500.0, -1000.0, -4000.0), 200.0);
-        rayColor = intersectSphere(rayOrigin, rayDirection, rayColor, vec3(-500.0, 500.0, -3000.0), 200.0);
-        rayColor = intersectSphere(rayOrigin, rayDirection, rayColor, vec3(500.0, -500.0, -2000.0), 200.0);
-        rayColor = intersectSphere(rayOrigin, rayDirection, rayColor, vec3(100.0, 500.0, -1000.0), 100.0);
-        rayColor = intersectSphere(rayOrigin, rayDirection, rayColor, vec3(200.0, 0.0, -500.0), 50.0);
-        rayColor = intersectSphere(rayOrigin, rayDirection, rayColor, vec3(100.0, 0.0, -400.0), 50.0);
-        rayColor = intersectSphere(rayOrigin, rayDirection, rayColor, vec3(0.0, 0.0, -300.0), 50.0);
+        rayColor = intersectSphere(rayOrigin, rayDirection, rayColor, vec3(-600.0, -1000.0, -4000.0), 200.0);
+        rayColor = intersectSphere(rayOrigin, rayDirection, rayColor, vec3(-600.0, 500.0, -3000.0), 200.0);
+        rayColor = intersectSphere(rayOrigin, rayDirection, rayColor, vec3(400.0, -500.0, -2000.0), 200.0);
+        rayColor = intersectSphere(rayOrigin, rayDirection, rayColor, vec3(100.0, 400.0, -1000.0), 100.0);
+        rayColor = intersectSphere(rayOrigin, rayDirection, rayColor, vec3(130.0, 0.0, -300.0), 30.0);
+        rayColor = intersectSphere(rayOrigin, rayDirection, rayColor, vec3(60.0, 0.0, -200.0), 27.0);
+        rayColor = intersectSphere(rayOrigin, rayDirection, rayColor, vec3(0.0, 0.0, -100.0), 25.0);
         rayColor = intersectSphere(rayOrigin, rayDirection, rayColor, vec3(0.0, 8.0, -50.0), 5.0);
     }
 
@@ -116,19 +111,35 @@ vec3 raycastScene(vec3 rayOrigin, vec3 rayDirection) {
     return rayColor;
 }
 
+// Nearest light field ray
+vec3 nearestLightFieldRay(vec2 angularCoord, vec2 spatialCoord) {
+    if (!insideTextureCoordRange(angularCoord)) return vec3(0.0);
+    if (!insideTextureCoordRange(spatialCoord)) return vec3(0.0);
+
+    vec2 lfCoord = (floor(angularCoord * angularResolution) + spatialCoord) / angularResolution;
+
+    return texture2D(lightField, lfCoord).rgb;
+}
+
+// Nearest tensor field ray
+vec3 nearestTensorFieldRay(vec2 angularCoord, vec2 spatialCoord) {
+    if (!insideTextureCoordRange(angularCoord)) return vec3(0.0);
+    if (!insideTextureCoordRange(spatialCoord)) return vec3(0.0);
+
+    vec2 tfCoord = (floor(angularCoord * angularResolution) + spatialCoord) / angularResolution;
+
+    return texture2D(tensorField, tfCoord).rgb;
+}
+
 // Raycast light field
 vec3 raycastLightField(vec3 rayOrigin, vec3 rayDirection) {
-    vec3 rayColor = vec3(0.0);
-
     vec2 angularCoord = intersectLayer(rayOrigin, rayDirection, angularSize);
     vec2 spatialCoord = intersectLayer(rayOrigin, rayDirection, spatialSize);
 
-    if (insideTextureCoordRange(angularCoord) && insideTextureCoordRange(spatialCoord)) {
-        vec2 lightFieldCoord = (floor(angularCoord * angularResolution) + spatialCoord) / angularResolution;
-        rayColor = texture2D(lightField, lightFieldCoord).rgb;
-    }
+    if (interpolationMode == 0)
+        return nearestLightFieldRay(angularCoord, spatialCoord);
 
-    return rayColor;
+    return nearestLightFieldRay(angularCoord, spatialCoord);
 }
 
 // Raycast tensor display

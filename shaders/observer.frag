@@ -11,7 +11,7 @@ void main() {
         if (k >= float(pupilSamples)) break;
         
         vec2 pupilCoord = sampleUnitDisk(rand(rand(gl_FragCoord.x, gl_FragCoord.y), k));
-        vec3 pupilPoint = eyePosition + vec3(pupilCoord.x, pupilCoord.y, 0.0) * pupilDiameter;
+        vec3 pupilPoint = eyePosition + vec3(pupilCoord.x, pupilCoord.y, 0.0) * pupilDiameter * 0.5;
 
         vec3 rayOrigin = pupilPoint;
         vec3 rayDirection = normalize(focusPoint - pupilPoint);
