@@ -1,0 +1,180 @@
+%%% -*-BibTeX-*-
+%%% Do NOT edit. File created by BibTeX with style
+%%% ACM-Reference-Format-Journals [18-Jan-2012].
+
+\begin{thebibliography}{00}
+
+%%% ====================================================================
+%%% NOTE TO THE USER: you can override these defaults by providing
+%%% customized versions of any of these macros before the \bibliography
+%%% command.  Each of them MUST provide its own final punctuation,
+%%% except for \shownote{}, \showDOI{}, and \showURL{}.  The latter two
+%%% do not use final punctuation, in order to avoid confusing it with
+%%% the Web address.
+%%%
+%%% To suppress output of a particular field, define its macro to expand
+%%% to an empty string, or better, \unskip, like this:
+%%%
+%%% \newcommand{\showDOI}[1]{\unskip}   % LaTeX syntax
+%%%
+%%% \def \showDOI #1{\unskip}           % plain TeX syntax
+%%%
+%%% ====================================================================
+
+\ifx \showCODEN    \undefined \def \showCODEN     #1{\unskip}     \fi
+\ifx \showDOI      \undefined \def \showDOI       #1{#1}\fi
+\ifx \showISBNx    \undefined \def \showISBNx     #1{\unskip}     \fi
+\ifx \showISBNxiii \undefined \def \showISBNxiii  #1{\unskip}     \fi
+\ifx \showISSN     \undefined \def \showISSN      #1{\unskip}     \fi
+\ifx \showLCCN     \undefined \def \showLCCN      #1{\unskip}     \fi
+\ifx \shownote     \undefined \def \shownote      #1{#1}          \fi
+\ifx \showarticletitle \undefined \def \showarticletitle #1{#1}   \fi
+\ifx \showURL      \undefined \def \showURL       {\relax}        \fi
+% The following commands are used for tagged output and should be
+% invisible to TeX
+\providecommand\bibfield[2]{#2}
+\providecommand\bibinfo[2]{#2}
+\providecommand\natexlab[1]{#1}
+\providecommand\showeprint[2][]{arXiv:#2}
+
+\bibitem[\protect\citeauthoryear{Chai, Tong, Chan, and Shum}{Chai
+  et~al\mbox{.}}{2000}]%
+        {Chai:2000:PS:344779.344932}
+\bibfield{author}{\bibinfo{person}{Jin-Xiang Chai}, \bibinfo{person}{Xin Tong},
+  \bibinfo{person}{Shing-Chow Chan}, {and} \bibinfo{person}{Heung-Yeung Shum}.}
+  \bibinfo{year}{2000}\natexlab{}.
+\newblock \showarticletitle{Plenoptic Sampling}. In \bibinfo{booktitle}{{\em
+  Proceedings of the 27th Annual Conference on Computer Graphics and
+  Interactive Techniques}} {\em (\bibinfo{series}{SIGGRAPH '00})}.
+  \bibinfo{publisher}{ACM Press/Addison-Wesley Publishing Co.},
+  \bibinfo{address}{New York, NY, USA}, \bibinfo{pages}{307--318}.
+\newblock
+\showISBNx{1-58113-208-5}
+\showDOI{%
+\url{https://doi.org/10.1145/344779.344932}}
+
+
+\bibitem[\protect\citeauthoryear{Durand, Holzschuch, Soler, Chan, and
+  Sillion}{Durand et~al\mbox{.}}{2005}]%
+        {Durand:2005:FAL:1073204.1073320}
+\bibfield{author}{\bibinfo{person}{Fr{\'e}do Durand}, \bibinfo{person}{Nicolas
+  Holzschuch}, \bibinfo{person}{Cyril Soler}, \bibinfo{person}{Eric Chan},
+  {and} \bibinfo{person}{Fran\c{c}ois~X. Sillion}.}
+  \bibinfo{year}{2005}\natexlab{}.
+\newblock \showarticletitle{A Frequency Analysis of Light Transport}.
+\newblock \bibinfo{journal}{{\em ACM Trans. Graph.\/}} \bibinfo{volume}{24},
+  \bibinfo{number}{3} (\bibinfo{date}{July} \bibinfo{year}{2005}),
+  \bibinfo{pages}{1115--1126}.
+\newblock
+\showISSN{0730-0301}
+\showDOI{%
+\url{https://doi.org/10.1145/1073204.1073320}}
+
+
+\bibitem[\protect\citeauthoryear{Gortler, Grzeszczuk, Szeliski, and
+  Cohen}{Gortler et~al\mbox{.}}{1996}]%
+        {Gortler:1996:LUM:237170.237200}
+\bibfield{author}{\bibinfo{person}{Steven~J. Gortler}, \bibinfo{person}{Radek
+  Grzeszczuk}, \bibinfo{person}{Richard Szeliski}, {and}
+  \bibinfo{person}{Michael~F. Cohen}.} \bibinfo{year}{1996}\natexlab{}.
+\newblock \showarticletitle{The Lumigraph}. In \bibinfo{booktitle}{{\em
+  Proceedings of the 23rd Annual Conference on Computer Graphics and
+  Interactive Techniques}} {\em (\bibinfo{series}{SIGGRAPH '96})}.
+  \bibinfo{publisher}{ACM}, \bibinfo{address}{New York, NY, USA},
+  \bibinfo{pages}{43--54}.
+\newblock
+\showISBNx{0-89791-746-4}
+\showDOI{%
+\url{https://doi.org/10.1145/237170.237200}}
+
+
+\bibitem[\protect\citeauthoryear{Lanman, Hirsch, Kim, and Raskar}{Lanman
+  et~al\mbox{.}}{2010}]%
+        {Lanman:2010:CPB:1882261.1866164}
+\bibfield{author}{\bibinfo{person}{Douglas Lanman}, \bibinfo{person}{Matthew
+  Hirsch}, \bibinfo{person}{Yunhee Kim}, {and} \bibinfo{person}{Ramesh
+  Raskar}.} \bibinfo{year}{2010}\natexlab{}.
+\newblock \showarticletitle{Content-adaptive Parallax Barriers: Optimizing
+  Dual-layer 3D Displays Using Low-rank Light Field Factorization}.
+\newblock \bibinfo{journal}{{\em ACM Trans. Graph.\/}} \bibinfo{volume}{29},
+  \bibinfo{number}{6}, Article \bibinfo{articleno}{163} (\bibinfo{date}{Dec.}
+  \bibinfo{year}{2010}), \bibinfo{numpages}{10}~pages.
+\newblock
+\showISSN{0730-0301}
+\showDOI{%
+\url{https://doi.org/10.1145/1882261.1866164}}
+
+
+\bibitem[\protect\citeauthoryear{Levoy and Hanrahan}{Levoy and
+  Hanrahan}{1996}]%
+        {Levoy:1996:LFR:237170.237199}
+\bibfield{author}{\bibinfo{person}{Marc Levoy} {and} \bibinfo{person}{Pat
+  Hanrahan}.} \bibinfo{year}{1996}\natexlab{}.
+\newblock \showarticletitle{Light Field Rendering}. In \bibinfo{booktitle}{{\em
+  Proceedings of the 23rd Annual Conference on Computer Graphics and
+  Interactive Techniques}} {\em (\bibinfo{series}{SIGGRAPH '96})}.
+  \bibinfo{publisher}{ACM}, \bibinfo{address}{New York, NY, USA},
+  \bibinfo{pages}{31--42}.
+\newblock
+\showISBNx{0-89791-746-4}
+\showDOI{%
+\url{https://doi.org/10.1145/237170.237199}}
+
+
+\bibitem[\protect\citeauthoryear{Liang and Ramamoorthi}{Liang and
+  Ramamoorthi}{2015}]%
+        {Liang:2015:LTF:2742222.2665075}
+\bibfield{author}{\bibinfo{person}{Chia-Kai Liang} {and} \bibinfo{person}{Ravi
+  Ramamoorthi}.} \bibinfo{year}{2015}\natexlab{}.
+\newblock \showarticletitle{A Light Transport Framework for Lenslet Light Field
+  Cameras}.
+\newblock \bibinfo{journal}{{\em ACM Trans. Graph.\/}} \bibinfo{volume}{34},
+  \bibinfo{number}{2}, Article \bibinfo{articleno}{16} (\bibinfo{date}{March}
+  \bibinfo{year}{2015}), \bibinfo{numpages}{19}~pages.
+\newblock
+\showISSN{0730-0301}
+\showDOI{%
+\url{https://doi.org/10.1145/2665075}}
+
+
+\bibitem[\protect\citeauthoryear{Ng}{Ng}{2005}]%
+        {Ng:2005:FSP:1073204.1073256}
+\bibfield{author}{\bibinfo{person}{Ren Ng}.} \bibinfo{year}{2005}\natexlab{}.
+\newblock \showarticletitle{Fourier Slice Photography}.
+\newblock \bibinfo{journal}{{\em ACM Trans. Graph.\/}} \bibinfo{volume}{24},
+  \bibinfo{number}{3} (\bibinfo{date}{July} \bibinfo{year}{2005}),
+  \bibinfo{pages}{735--744}.
+\newblock
+\showISSN{0730-0301}
+\showDOI{%
+\url{https://doi.org/10.1145/1073204.1073256}}
+
+
+\bibitem[\protect\citeauthoryear{Wetzstein, Lanman, Hirsch, and
+  Raskar}{Wetzstein et~al\mbox{.}}{2012}]%
+        {Wetzstein:2012:TDC:2185520.2185576}
+\bibfield{author}{\bibinfo{person}{Gordon Wetzstein}, \bibinfo{person}{Douglas
+  Lanman}, \bibinfo{person}{Matthew Hirsch}, {and} \bibinfo{person}{Ramesh
+  Raskar}.} \bibinfo{year}{2012}\natexlab{}.
+\newblock \showarticletitle{Tensor Displays: Compressive Light Field Synthesis
+  Using Multilayer Displays with Directional Backlighting}.
+\newblock \bibinfo{journal}{{\em ACM Trans. Graph.\/}} \bibinfo{volume}{31},
+  \bibinfo{number}{4}, Article \bibinfo{articleno}{80} (\bibinfo{date}{July}
+  \bibinfo{year}{2012}), \bibinfo{numpages}{11}~pages.
+\newblock
+\showISSN{0730-0301}
+\showDOI{%
+\url{https://doi.org/10.1145/2185520.2185576}}
+
+
+\bibitem[\protect\citeauthoryear{Zhang and Chen}{Zhang and Chen}{2001}]%
+        {zhang2001generalized}
+\bibfield{author}{\bibinfo{person}{Cha Zhang} {and} \bibinfo{person}{Tsuhan
+  Chen}.} \bibinfo{year}{2001}\natexlab{}.
+\newblock \bibinfo{booktitle}{{\em Generalized Plenoptic Sampling}}.
+\newblock \bibinfo{type}{{T}echnical {R}eport}. \bibinfo{institution}{Carnegie
+  Mellon University}, \bibinfo{address}{Pittsburgh, PA, USA}.
+\newblock
+
+
+\end{thebibliography}
