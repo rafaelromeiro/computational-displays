@@ -1,12 +1,12 @@
 # Fdb version 3
-["bibtex demo-acmtog-review"] 1495749228 "demo-acmtog-review.aux" "demo-acmtog-review.bbl" "demo-acmtog-review" 1495750944
+["bibtex demo-acmtog-review"] 1495830576 "demo-acmtog-review.aux" "demo-acmtog-review.bbl" "demo-acmtog-review" 1495832487
   "bibliografia.bib" 1495468208 6527 e3ef6afc93db873c4964fe7fbfcb1cbd ""
   "c:/texlive/2016/texmf-dist/bibtex/bst/acmart/ACM-Reference-Format.bst" 1492614900 93965 9c390cf4cdaacae983acdd7663e31b29 ""
-  "demo-acmtog-review.aux" 1495749266 11023 9f595020e013eeb3efae71ffcce6ea2c ""
+  "demo-acmtog-review.aux" 1495832139 11157 796d3426250b28ad58dbf36161790914 ""
   (generated)
   "demo-acmtog-review.bbl"
   "demo-acmtog-review.blg"
-["pdflatex"] 1495749265 "demo-acmtog-review.tex" "demo-acmtog-review.pdf" "demo-acmtog-review" 1495750944
+["pdflatex"] 1495832138 "demo-acmtog-review.tex" "demo-acmtog-review.pdf" "demo-acmtog-review" 1495832487
   "c:/texlive/2016/texmf-dist/fonts/enc/dvips/base/8r.enc" 1492615716 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "c:/texlive/2016/texmf-dist/fonts/enc/dvips/libertine/lbtn_25tcsq.enc" 1492616395 2921 8ca0eb0831f9bc5da080d3697cfe67bf ""
   "c:/texlive/2016/texmf-dist/fonts/enc/dvips/libertine/lbtn_76gpa5.enc" 1492616395 2933 9ad527ce78d7c5fa0a642dead095f172 ""
@@ -211,10 +211,10 @@
   "c:/texlive/2016/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1492617947 2373944 dee8225b8c4e09d7acdabed2f12427fd ""
   "c:/texlive/2016/texmf-var/web2c/pdftex/pdflatex.fmt" 1492618020 4047359 e1f7322ada42455c79e63aa2a628d519 ""
   "c:/texlive/2016/texmf.cnf" 1492617931 673 4ae7b2f49cee444c5343a45b5d0f169c ""
-  "demo-acmtog-review.aux" 1495749266 11023 9f595020e013eeb3efae71ffcce6ea2c ""
-  "demo-acmtog-review.bbl" 1495749228 7815 b3a9323117ead858b6a50d076ab25d72 "bibtex demo-acmtog-review"
-  "demo-acmtog-review.out" 1495749266 4819 f7509f22a742525a76aaac13fc58935a ""
-  "demo-acmtog-review.tex" 1495750942 22819 eaa8c1c4ccea2642350fc570e90084f9 ""
+  "demo-acmtog-review.aux" 1495832139 11157 796d3426250b28ad58dbf36161790914 ""
+  "demo-acmtog-review.bbl" 1495830576 7815 b3a9323117ead858b6a50d076ab25d72 "bibtex demo-acmtog-review"
+  "demo-acmtog-review.out" 1495832139 5027 7ebf124b30b8b6eeeaac5c31d2a1c4a9 ""
+  "demo-acmtog-review.tex" 1495832486 25044 4dd0e1bfcb561bc28dff5685b04a0863 ""
   "figures/2dslice.jpg" 1495451640 48027 bb859e6c3e019861cf07cfd1e1e49851 ""
   "figures/4dlf.jpg" 1495451640 69731 7b74af58da55d284b64199529723dfe6 ""
   "figures/bandlimited.jpg" 1495451640 81237 2ceb7e4bfb265f4ddf6c1909e5843f85 ""

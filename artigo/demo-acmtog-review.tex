@@ -3,6 +3,9 @@
 \usepackage{booktabs} % For formal tables
 \usepackage{subcaption}
 
+\DeclareMathOperator{\sinc}{sinc}
+\DeclareMathOperator{\rect}{rect}
+
 
 \usepackage[ruled]{algorithm2e} % For algorithms
 \renewcommand{\algorithmcfname}{ALGORITHM}
@@ -137,7 +140,7 @@ This paper makes the following contributions:
 
 The radiance of a light ray in 3d space at the position $(x, y, z)$ and direction $(u, v)$ can be represented by the plenoptic function $P(x, y, z, u, v)$. Following \cite{Chai:2000:PS:344779.344932}, the coordinates $(u, v)$ are taken as the intersection of the ray with a plane orthogonal to the $z$ direction at unit distance relative to $(x, y, z)$ as depicted in figure \ref{fig:plenoptic}.
 
-The canonical 4d light field $L(x, y, u, v) = P(x, y, 0, u, v)$ describes the radiance reaching the plane $z = 0$. The values in $L(x, y, u, v)$ can be propagated to another plane at $z = z_{local}$ and define a local light field $L_{local}(x, y, u, v)$. Note that $L_{local}(x, y, u, v)$ is different than $P(x, y, z_{local}, u, v)$ due to occlusions and is described only by the radiance along rays in empty space reaching the plane $z = 0$.
+The canonical 4d light field $L(x, y, u, v) = P(x, y, 0, u, v)$ describes the radiance reaching the plane $z = 0$. The values in $L(x, y, u, v)$ can be propagated to another plane at $z = z_{local}$ and define a local light field $L_{local}(x, y, u, v)$. Note that $L_{local}(x, y, u, v)$ is different from $P(x, y, z_{local}, u, v)$ due to occlusions and is described only by the radiance along rays in empty space reaching the plane $z = 0$.
 
 We refer to $(x, y)$ as \emph{spatial} coordinates and to $(u, v)$ as \emph{angular} coordinates. Throughout this work we address a 2d spatio-angular slice of the light field, $L(x, u)$. The extension to the full 4d light field is mostly straightforward and any difference will be indicated whenever necessary.
 
@@ -155,11 +158,11 @@ We denote the spatial and angular frequencies as $\omega_{x}$ and $\omega_{u}$, 
 \hat{L}\left(\begin{bmatrix}1 && 0\\z_{local} && 1\end{bmatrix} \begin{bmatrix}\omega_{x}\\\omega_{u}\end{bmatrix}\right)
 \end{equation}
 
-\subsection{Light field rendering}
+\subsection{Perceived image spectrum}
 
-Images can be synthesized by selecting and combining rays from the light field. In this subsection we describe what an observer would see for a given light field reaching its pupil. Assuming the position and orientation of the observer are known, we choose to place the canonical light field over the pupil and orthogonal to the observer main optical axis (fig. \ref{eq:observer}).
+Images can be synthesized by selecting and combining rays from the light field. In this subsection we describe what an observer would see for a given light field reaching his pupil. Given the position and orientation of the observer, we choose to place the canonical light field over the pupil and orthogonal to the observer main optical axis (fig. \ref{eq:observer}).
 
-We assume a thin lens camera model with the retina at $z_{r}$ and the lens giving focus at an arbitrary distance $z_{f}$. The light field reaching the retina can be described by the local light field on the plane at focus (eq. \ref{eq:focus}). Using eq. \ref{eq:local} and eq. \ref{eq:focus}, the retina light field can be described by the light field reaching the pupil (eq. \ref{eq:pupil}).
+We assume a thin lens camera model with the retina at $z_{r}$ and the pupil lens giving focus at an arbitrary distance $z_{f}$. The light field reaching the retina can be described by the local light field on the plane at focus (eq. \ref{eq:focus}). Using eq. \ref{eq:local} and eq. \ref{eq:focus}, the retina light field can be described by the light field reaching the pupil (eq. \ref{eq:pupil}).
 
 \begin{equation} \label{eq:focus}
 L_{r}\left(\begin{bmatrix}x\\u\end{bmatrix}\right) =
@@ -171,12 +174,12 @@ L_{r}\left(\begin{bmatrix}x\\u\end{bmatrix}\right) =
 L_{p}\left(\begin{bmatrix}1 && -z_{r}\\\frac{1}{z_{r}} - \frac{1}{z_{f}} && \frac{z_{r}}{z_{f}}\end{bmatrix} \begin{bmatrix}x\\u\end{bmatrix}\right)
 \end{equation}
 
-The pupil light field is equal to the canonical light field with the rays outside of the pupil aperture being blocked, viz., $L_{p}(x, u) = L(x, u) rect(\frac{x}{a})$. Where $a$ is the pupil aperture diameter and $rect(x) = 1$ for $|x| < 0.5$ and $0$ otherwise. Finaly, the retina light field can be described by the canonical light field (eq. \ref{eq:canon}).
+The pupil light field is equal to the canonical light field with the rays outside of the pupil aperture being blocked, viz., $L_{p}(x, u) = L(x, u) \rect(\frac{x}{a})$. Where $a$ is the pupil aperture diameter and $\rect(x) = 1$ for $|x| < 0.5$ and $0$ otherwise. Finaly, the retina light field can be described by the canonical light field (eq. \ref{eq:canon}).
 
 \begin{equation} \label{eq:canon}
 L_{r}\left(\begin{bmatrix}x\\u\end{bmatrix}\right) =
 L\left(\begin{bmatrix}1 && -z_{r}\\\frac{1}{z_{r}} - \frac{1}{z_{f}} && \frac{z_{r}}{z_{f}}\end{bmatrix} \begin{bmatrix}x\\u\end{bmatrix}\right)
-rect\left(\frac{x - u z_{r}}{a}\right)
+\rect\left(\frac{x - u z_{r}}{a}\right)
 \end{equation}
 
 The image formed on the retina is given by the integration of the retina light field over the angular coordinate (eq. \ref{eq:image}). Applying eq. \ref{eq:image} inside the definition of the image spectrum we have eq. \ref{eq:imagespectrum}.
@@ -186,8 +189,10 @@ I(x) = \int_{-\infty}^{\infty} L_{r}\left(x, u\right) du
 \end{equation}
 
 \begin{equation} \label{eq:imagespectrum}
-\hat{I}(\omega_{x}) = \int_{-\infty}^{\infty} I(x) e^{-2 \pi i \omega_{x} x} dx =
-\iint_{-\infty}^{\infty} L_{r}\left(x, u\right) e^{-2 \pi i \omega_{x} x} dx du
+\begin{split}
+\hat{I}(\omega_{x}) = \int_{-\infty}^{\infty} I(x) e^{-2 \pi i \omega_{x} x} dx =\\
+=\iint_{-\infty}^{\infty} L_{r}\left(x, u\right) e^{-2 \pi i \omega_{x} x} dx du
+\end{split}
 \end{equation}
 
 Given that the retina light field spectrum can be written, by definition, as in eq. \ref{eq:retinaspectrum}. Comparing eq. \ref{eq:imagespectrum} and eq. \ref{eq:retinaspectrum}, we can assert that $\hat{I}(\omega_{x}) = \hat{L}_{r}(\omega_{x}, 0)$.
@@ -197,19 +202,32 @@ Given that the retina light field spectrum can be written, by definition, as in 
 \iint_{-\infty}^{\infty} L_{r}\left(x, u\right) e^{-2 \pi i \omega_{x} x} e^{-2 \pi i \omega_{u} u} dx du
 \end{equation}
 
-From eq. \ref{eq:pupil}, the retina light field spectrum can be written as in eq. \ref{eq:pupilspectrum} and thus the image spectrum can be written as in eq.
+From eq. \ref{eq:pupil}, the retina light field spectrum can be written as in eq. \ref{eq:retinaspectrum2} and thus the image spectrum can be written as in eq. \ref{eq:imagespectrum2}, where $\delta$ denotes the Dirac delta function and $\ast$ denotes the two dimensional convolution operation over $(\omega_{x}, \omega_{u})$.
 
-\begin{equation} \label{eq:pupilspectrum}
+\begin{equation} \label{eq:retinaspectrum2}
 \hat{L}_{r}\left(\begin{bmatrix}\omega_{x}\\\omega_{u}\end{bmatrix}\right) =
 \hat{L}_{p}\left(\begin{bmatrix}\frac{z_{r}}{z_{f}} && \frac{1}{z_{f}} - \frac{1}{z_{r}}\\z_{r} && 1\end{bmatrix} \begin{bmatrix}\omega_{x}\\\omega_{u}\end{bmatrix}\right)
 \end{equation}
 
-\begin{equation} \label{eq:spectrum}
+\begin{equation} \label{eq:imagespectrum2}
+\begin{split}
 \hat{I}(\omega_{x}) = \hat{L}_{r}\left(\begin{bmatrix}\omega_{x}\\0\end{bmatrix}\right) =
-\hat{L}_{p}\left(\begin{bmatrix}\frac{z_{r}}{z_{f}}\omega_{x}\\z_{r}\omega_{x}\end{bmatrix}\right)
+\hat{L}_{p}\left(\begin{bmatrix}\frac{z_{r}}{z_{f}}\omega_{x}\\z_{r}\omega_{x}\end{bmatrix}\right) =\\
+= \hat{L}\left(\begin{bmatrix}\frac{z_{r}}{z_{f}}\omega_{x}\\z_{r}\omega_{x}\end{bmatrix}\right) \ast \left[ a \sinc\left(a \frac{z_{r}}{z_{f}} \omega_{x}\right) \delta(z_{r} \omega_{x}) \right]
+\end{split}
 \end{equation}
 
+The final discrete image is a sampling of the continuous image signal formed on the retina. The maximum frequency $\xi_{x}$ which can be represented without aliasing is determined from the image sampling rate through Nyquist-Shannon theorem.
+
+Regardless of the focus distance $z_{f}$, the maximum angular frequency on the canonical light field which can still be represented in the image without aliasing is $z_{r} \xi_{x}$. Therefore, when sampling the canonical light field for an observer (with unknown and possibly dynamic focus distance), one should not be concerned about capturing angular frequencies above $z_{r} \xi_{x}$.
+
+Taking the full 4d light field into account, if the 2d retina image is sampled in a rectangular lattice (like a camera), then the non-vanishing intervals of horizontal and vertical spatial frequencies $(\omega_{x}, \omega_{y})$ are seperable and the 4d light field spectrum is the product of two separate spectra of 2d spatio-angular slices as described above. The maximum angular frequencies to be captured in the 4d canonical light field are $\omega_{u} = z_{r} \xi_{x}$ and $\omega_{v} = z_{r} \xi_{y}$.
+
+On the other hand, if the 2d image is sampled in a hexagonal lattice (like the human eye), the image spectral support is not seperable and neither is the spectral support for the 4d canonical light field. Even so, the 4d canonical light field angular components are still bandlimited and independent of focus distance. In any case, an artificial rectangular spectral support containing the actual image spectrum can be assumed, allowing the light field spectrum to be seperable into two spatio-angular slices at the cost of higher sampling rates.
+
 \subsection{Bounded Lambertian scene}
+
+\section{Light field representation}
 
 \begin{figure}[h]
   \centering
