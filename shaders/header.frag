@@ -1,15 +1,15 @@
 uniform vec2 resolution;
 uniform int imageExport;
 
-uniform vec2 angularResolution;
 uniform vec2 spatialResolution;
-uniform vec3 angularSize;
+uniform vec2 angularResolution;
 uniform vec3 spatialSize;
+uniform vec3 angularSize;
 
-uniform vec2 display1Resolution;
-uniform vec2 display2Resolution;
-uniform vec3 display1Size;
-uniform vec3 display2Size;
+uniform vec2 frontPanelResolution;
+uniform vec2 rearPanelResolution;
+uniform vec3 frontPanelSize;
+uniform vec3 rearPanelSize;
 
 uniform int pupilSamples;
 uniform float pupilDiameter;
@@ -23,10 +23,10 @@ uniform int renderMode;
 uniform int scene;
 uniform int interpolationMode;
 
-uniform sampler2D lightField;
-uniform sampler2D tensorField;
-uniform sampler2D display1;
-uniform sampler2D display2;
+uniform sampler2D sampledLightField;
+uniform sampler2D displayLightField;
+uniform sampler2D frontPanel;
+uniform sampler2D rearPanel;
 
 #define M_PI 3.1415926535897932384626433832795
 
@@ -111,48 +111,51 @@ vec3 raycastScene(vec3 rayOrigin, vec3 rayDirection) {
     return rayColor;
 }
 
-// Nearest light field ray
-vec3 nearestLightFieldRay(vec2 angularCoord, vec2 spatialCoord) {
-    if (!insideTextureCoordRange(angularCoord)) return vec3(0.0);
+// Nearest sampled light field ray
+vec3 nearestSampledLightFieldRay(vec2 spatialCoord, vec2 angularCoord) {
     if (!insideTextureCoordRange(spatialCoord)) return vec3(0.0);
+    if (!insideTextureCoordRange(angularCoord)) return vec3(0.0);
 
-    vec2 lfCoord = (floor(angularCoord * angularResolution) + spatialCoord) / angularResolution;
+    vec2 lfCoord = (floor(spatialCoord * spatialResolution) + angularCoord) / spatialResolution;
 
-    return texture2D(lightField, lfCoord).rgb;
+    return texture2D(sampledLightField, lfCoord).rgb;
 }
 
-// Nearest tensor field ray
-vec3 nearestTensorFieldRay(vec2 angularCoord, vec2 spatialCoord) {
-    if (!insideTextureCoordRange(angularCoord)) return vec3(0.0);
+// Nearest display light field ray
+vec3 nearestDisplayLightFieldRay(vec2 spatialCoord, vec2 angularCoord) {
     if (!insideTextureCoordRange(spatialCoord)) return vec3(0.0);
+    if (!insideTextureCoordRange(angularCoord)) return vec3(0.0);
 
-    vec2 tfCoord = (floor(angularCoord * angularResolution) + spatialCoord) / angularResolution;
+    vec2 lfCoord = (floor(spatialCoord * spatialResolution) + angularCoord) / spatialResolution;
 
-    return texture2D(tensorField, tfCoord).rgb;
+    return texture2D(displayLightField, lfCoord).rgb;
 }
 
-// Raycast light field
-vec3 raycastLightField(vec3 rayOrigin, vec3 rayDirection) {
-    vec2 angularCoord = intersectLayer(rayOrigin, rayDirection, angularSize);
+// Raycast sampled light field
+vec3 raycastSampledLightField(vec3 rayOrigin, vec3 rayDirection) {
     vec2 spatialCoord = intersectLayer(rayOrigin, rayDirection, spatialSize);
+    vec2 angularCoord = intersectLayer(rayOrigin, rayDirection, angularSize);
 
-    if (interpolationMode == 0)
-        return nearestLightFieldRay(angularCoord, spatialCoord);
+    if (interpolationMode == 0) // Nearest
+        return nearestSampledLightFieldRay(spatialCoord, angularCoord);
 
-    return nearestLightFieldRay(angularCoord, spatialCoord);
+    if (interpolationMode == 1) { // Quadrilinear
+        // TODO
+        return nearestSampledLightFieldRay(spatialCoord, angularCoord);
+    }
 }
 
-// Raycast tensor display
-vec3 raycastTensorDisplay(vec3 rayOrigin, vec3 rayDirection) {
+// Raycast display
+vec3 raycastDisplay(vec3 rayOrigin, vec3 rayDirection) {
     vec3 rayColor = vec3(1.0);
 
-    vec2 display1Coord = intersectLayer(rayOrigin, rayDirection, display1Size);
-    vec2 display2Coord = intersectLayer(rayOrigin, rayDirection, display2Size);
+    vec2 frontPanelCoord = intersectLayer(rayOrigin, rayDirection, frontPanelSize);
+    vec2 rearPanelCoord = intersectLayer(rayOrigin, rayDirection, rearPanelSize);
 
-    if (insideTextureCoordRange(display1Coord))
-        rayColor *= texture2D(display1, display1Coord).rgb;
-    if (insideTextureCoordRange(display2Coord))
-        rayColor *= texture2D(display2, display2Coord).rgb;
+    if (insideTextureCoordRange(frontPanelCoord))
+        rayColor *= texture2D(frontPanel, frontPanelCoord).rgb;
+    if (insideTextureCoordRange(rearPanelCoord))
+        rayColor *= texture2D(rearPanel, rearPanelCoord).rgb;
 
     return rayColor;
 }

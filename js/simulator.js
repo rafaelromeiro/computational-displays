@@ -6,37 +6,37 @@ var simulator = {
 
     imageExportShader: null,
     observerShader: null,
-    lightFieldShader: null,
-    tensorFieldShader: null,
-    display1UpdateShader: null,
-    display2UpdateShader: null,
-    displayResetShader: null,
+    sampledLightFieldShader: null,
+    displayLightFieldShader: null,
+    frontPanelUpdateShader: null,
+    rearPanelUpdateShader: null,
+    panelResetShader: null,
 
-    lightFieldRenderTarget: null,
-    tensorFieldRenderTarget: null,
-    display1RenderTarget: null,
-    display2RenderTarget: null,
+    sampledLightFieldRenderTarget: null,
+    displayLightFieldRenderTarget: null,
+    frontPanelRenderTarget: null,
+    rearPanelRenderTarget: null,
 
     properties: {
-        angularResX: 5.0,
-        angularResY: 5.0,
-        angularHeight: 5.0,
-        angularDistance: 0.00001,
+        spatialResX: 64.0,
+        spatialResY: 64.0,
+        spatialHeight: 10.0,
+        spatialDistance: 0.0,
 
-        spatialResX: 800.0,
-        spatialResY: 640.0,
-        spatialHeight: 5000.0,
-        spatialDistance: 4000.0,
+        angularResX: 256.0,
+        angularResY: 256.0,
+        angularHeight: 40.0,
+        angularDistance: 40.0,
 
-        display1ResX: 1280.0,
-        display1ResY: 800.0,
-        display1Height: 3.86 * 45,
-        display1Distance: 190.0, 
+        frontPanelResX: 64.0,
+        frontPanelResY: 64.0,
+        frontPanelHeight: 10.0,
+        frontPanelDistance: 0.0, 
 
-        display2ResX: 1280.0,
-        display2ResY: 800.0,
-        display2Height: 25.0 * 45,
-        display2Distance: 1230.0,
+        rearPanelResX: 256.0,
+        rearPanelResY: 256.0,
+        rearPanelHeight: 40.0,
+        rearPanelDistance: 40.0,
 
         pupilSamples: 256,
         pupilDiameter: 5.0,
@@ -49,7 +49,7 @@ var simulator = {
         eyePositionZ: 0.0,
 
         updateLightField: false,
-        updateTensorDisplay: false,
+        updateDisplay: false,
         renderMode: 0,
         scene: 0,
         interpolationMode: 0,
@@ -58,23 +58,23 @@ var simulator = {
 
         setupGUI: function (canvas, simulator) {
             var f1 = canvas.gui.addFolder('Light Field Properties');
-            f1.add(this, 'angularResX').listen();
-            f1.add(this, 'angularResY').listen();
-            f1.add(this, 'angularHeight').listen();
-            f1.add(this, 'angularDistance').listen();
             f1.add(this, 'spatialResX').listen();
             f1.add(this, 'spatialResY').listen();
             f1.add(this, 'spatialHeight').listen();
             f1.add(this, 'spatialDistance').listen();
+            f1.add(this, 'angularResX').listen();
+            f1.add(this, 'angularResY').listen();
+            f1.add(this, 'angularHeight').listen();
+            f1.add(this, 'angularDistance').listen();
             var f2 = canvas.gui.addFolder('Tensor Display Properties');
-            f2.add(this, 'display1ResX').listen();
-            f2.add(this, 'display1ResY').listen();
-            f2.add(this, 'display1Height').listen();
-            f2.add(this, 'display1Distance').listen();
-            f2.add(this, 'display2ResX').listen();
-            f2.add(this, 'display2ResY').listen();
-            f2.add(this, 'display2Height').listen();
-            f2.add(this, 'display2Distance').listen();
+            f2.add(this, 'frontPanelResX').listen();
+            f2.add(this, 'frontPanelResY').listen();
+            f2.add(this, 'frontPanelHeight').listen();
+            f2.add(this, 'frontPanelDistance').listen();
+            f2.add(this, 'rearPanelResX').listen();
+            f2.add(this, 'rearPanelResY').listen();
+            f2.add(this, 'rearPanelHeight').listen();
+            f2.add(this, 'rearPanelDistance').listen();
             var f3 = canvas.gui.addFolder('Intrinsic Eye Properties');
             f3.add(this, 'pupilSamples').listen();
             f3.add(this, 'pupilDiameter').listen();
@@ -88,14 +88,14 @@ var simulator = {
             var f5 = canvas.gui.addFolder('Rendering Properties');
             f5.add(this, 'updateLightField').listen();
             f5.add(simulator, 'updateLightField');
-            f5.add(this, 'updateTensorDisplay').listen();
-            f5.add(simulator, 'updateTensorDisplay');
-            f5.add(simulator, 'resetTensorDisplay');
-            f5.add(this, 'renderMode', {scene: 0, lightField: 1, tensorDisplay: 2}).listen();
+            f5.add(this, 'updateDisplay').listen();
+            f5.add(simulator, 'updateDisplay');
+            f5.add(simulator, 'resetDisplay');
+            f5.add(this, 'renderMode', {scene: 0, lightField: 1, display: 2}).listen();
             f5.add(this, 'scene', {spheres: 0, test: 1}).listen();
             f5.add(this, 'interpolationMode', {Nearest: 0, Quadrilinear: 1}).listen();
             var f6 = canvas.gui.addFolder('Export Image');
-            f6.add(this, 'image', {screenshot: -1, lightField: 0, display1: 1, display2: 2, tensorField: 3}).listen();
+            f6.add(this, 'image', {screenshot: -1, sampledLightField: 0, frontPanel: 1, rearPanel: 2, displayLightField: 3}).listen();
             f6.add(simulator, 'exportImage');
         }
     },
@@ -110,9 +110,9 @@ var simulator = {
         // Fetch all the setup resources (shaders...)
         var urls = ['shaders/basic.vert', 'shaders/header.frag',
                     'shaders/observer.frag', 'shaders/imageExport.frag',
-                    'shaders/lightField.frag', 'shaders/tensorField.frag',
-                    'shaders/display1Update.frag', 'shaders/display2Update.frag',
-                    'shaders/displayReset.frag'];
+                    'shaders/sampledLightField.frag', 'shaders/displayLightField.frag',
+                    'shaders/frontPanelUpdate.frag', 'shaders/rearPanelUpdate.frag',
+                    'shaders/panelReset.frag'];
         var requests = urls.map(url => fetch(url).then(response => response.text()));
         Promise.all(requests).then(resources => { this.onSetupResourcesReady(resources); }).then(canvas.onSetupDone.bind(canvas));
     },
@@ -131,20 +131,20 @@ var simulator = {
         var headerFragmentShader = resources[1];
         var observerFragmentShader = headerFragmentShader.concat(resources[2]);
         var imageExportFragmentShader = headerFragmentShader.concat(resources[3]);
-        var lightFieldFragmentShader = headerFragmentShader.concat(resources[4]);
-        var tensorFieldFragmentShader = headerFragmentShader.concat(resources[5]);
-        var display1UpdateFragmentShader = headerFragmentShader.concat(resources[6]);
-        var display2UpdateFragmentShader = headerFragmentShader.concat(resources[7]);
-        var displayResetFragmentShader = headerFragmentShader.concat(resources[8]);
+        var sampledLightFieldFragmentShader = headerFragmentShader.concat(resources[4]);
+        var displayLightFieldFragmentShader = headerFragmentShader.concat(resources[5]);
+        var frontPanelUpdateFragmentShader = headerFragmentShader.concat(resources[6]);
+        var rearPanelUpdateFragmentShader = headerFragmentShader.concat(resources[7]);
+        var panelResetFragmentShader = headerFragmentShader.concat(resources[8]);
         
         // Setup camera (Fixed quad-viewing camera, not our ray-casting camera)
         this.camera.position.z = 1;
 
         // Setup render targets
-        this.lightFieldRenderTarget = new THREE.WebGLRenderTarget(2, 2, {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter});
-        this.tensorFieldRenderTarget = new THREE.WebGLRenderTarget(2, 2, {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter});
-        this.display1RenderTarget = new THREE.WebGLRenderTarget(2, 2, {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter});
-        this.display2RenderTarget = new THREE.WebGLRenderTarget(2, 2, {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter});
+        this.sampledLightFieldRenderTarget = new THREE.WebGLRenderTarget(2, 2, {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter});
+        this.displayLightFieldRenderTarget = new THREE.WebGLRenderTarget(2, 2, {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter});
+        this.frontPanelRenderTarget = new THREE.WebGLRenderTarget(2, 2, {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter});
+        this.rearPanelRenderTarget = new THREE.WebGLRenderTarget(2, 2, {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter});
 
         // Setup uniforms
         var textureLoader = new THREE.TextureLoader();
@@ -152,15 +152,15 @@ var simulator = {
             resolution: {type: 'v2', value: new THREE.Vector2()},
             imageExport: {type: 'i', value: 0},
 
-            angularResolution: {type: 'v2', value: new THREE.Vector2()},
             spatialResolution: {type: 'v2', value: new THREE.Vector2()},
-            angularSize: {type: 'v3', value: new THREE.Vector3()},
+            angularResolution: {type: 'v2', value: new THREE.Vector2()},
             spatialSize: {type: 'v3', value: new THREE.Vector3()},
+            angularSize: {type: 'v3', value: new THREE.Vector3()},
 
-            display1Resolution: {type: 'v2', value: new THREE.Vector2()},
-            display2Resolution: {type: 'v2', value: new THREE.Vector2()},
-            display1Size: {type: 'v3', value: new THREE.Vector3()},
-            display2Size: {type: 'v3', value: new THREE.Vector3()},
+            frontPanelResolution: {type: 'v2', value: new THREE.Vector2()},
+            rearPanelResolution: {type: 'v2', value: new THREE.Vector2()},
+            frontPanelSize: {type: 'v3', value: new THREE.Vector3()},
+            rearPanelSize: {type: 'v3', value: new THREE.Vector3()},
 
             pupilSamples: {type: 'i', value: 0},
             pupilDiameter: {type: 'f', value: 0.0},
@@ -174,26 +174,26 @@ var simulator = {
             scene: {type: 'i', value: 0},
             interpolationMode: {type: 'i', value: 0},
 
-            lightField: {type: "t", value: this.lightFieldRenderTarget.texture},
-            tensorField: {type: "t", value: this.tensorFieldRenderTarget.texture},
-            display1: {type: "t", value: this.display1RenderTarget.texture},
-            display2: {type: "t", value: this.display2RenderTarget.texture}
+            sampledLightField: {type: "t", value: this.sampledLightFieldRenderTarget.texture},
+            displayLightField: {type: "t", value: this.displayLightFieldRenderTarget.texture},
+            frontPanel: {type: "t", value: this.frontPanelRenderTarget.texture},
+            rearPanel: {type: "t", value: this.rearPanelRenderTarget.texture}
         };
 
         // Setup shader materials
         this.observerShader = this.setupShader(vertexShader, observerFragmentShader);
         this.imageExportShader = this.setupShader(vertexShader, imageExportFragmentShader);
-        this.lightFieldShader = this.setupShader(vertexShader, lightFieldFragmentShader);
-        this.tensorFieldShader = this.setupShader(vertexShader, tensorFieldFragmentShader);
-        this.display1UpdateShader = this.setupShader(vertexShader, display1UpdateFragmentShader);
-        this.display2UpdateShader = this.setupShader(vertexShader, display2UpdateFragmentShader);
-        this.displayResetShader = this.setupShader(vertexShader, displayResetFragmentShader);
+        this.sampledLightFieldShader = this.setupShader(vertexShader, sampledLightFieldFragmentShader);
+        this.displayLightFieldShader = this.setupShader(vertexShader, displayLightFieldFragmentShader);
+        this.frontPanelUpdateShader = this.setupShader(vertexShader, frontPanelUpdateFragmentShader);
+        this.rearPanelUpdateShader = this.setupShader(vertexShader, rearPanelUpdateFragmentShader);
+        this.panelResetShader = this.setupShader(vertexShader, panelResetFragmentShader);
 
         // Setup scene with a quad mesh covering whole viewport
         this.scene.add(new THREE.Mesh(new THREE.PlaneBufferGeometry(2, 2)));
 
         // Setup tensor display random initial content
-        this.resetTensorDisplay();
+        this.resetDisplay();
     },
 
     render: function (deltaTime, input) {
@@ -208,8 +208,8 @@ var simulator = {
             this.updateLightField();
 
         // Update tensor display
-        if (this.properties.updateTensorDisplay)
-            this.updateTensorDisplay();
+        if (this.properties.updateDisplay)
+            this.updateDisplay();
 
         // Render to screen the observed image
         this.scene.overrideMaterial = this.observerShader;
@@ -219,38 +219,39 @@ var simulator = {
     updateLightField: function () {
         var lightFieldResX = this.properties.angularResX * this.properties.spatialResX;
         var lightFieldResY = this.properties.angularResY * this.properties.spatialResY;
-        this.lightFieldRenderTarget.setSize(lightFieldResX, lightFieldResY);
-        this.tensorFieldRenderTarget.setSize(lightFieldResX, lightFieldResY);
+
+        this.sampledLightFieldRenderTarget.setSize(lightFieldResX, lightFieldResY);
+        this.displayLightFieldRenderTarget.setSize(lightFieldResX, lightFieldResY);
         
-        this.scene.overrideMaterial = this.lightFieldShader;
-        this.renderer.render(this.scene, this.camera, this.lightFieldRenderTarget);
+        this.scene.overrideMaterial = this.sampledLightFieldShader;
+        this.renderer.render(this.scene, this.camera, this.sampledLightFieldRenderTarget);
     },
 
-    resetTensorDisplay: function () {
-        this.display1RenderTarget.setSize(this.properties.display1ResX, this.properties.display1ResY);
-        this.display2RenderTarget.setSize(this.properties.display2ResX, this.properties.display2ResY);
+    resetDisplay: function () {
+        this.frontPanelRenderTarget.setSize(this.properties.frontPanelResX, this.properties.frontPanelResY);
+        this.rearPanelRenderTarget.setSize(this.properties.rearPanelResX, this.properties.rearPanelResY);
 
-        this.scene.overrideMaterial = this.displayResetShader;
-        this.renderer.render(this.scene, this.camera, this.display1RenderTarget);
-        this.renderer.render(this.scene, this.camera, this.display2RenderTarget);
+        this.scene.overrideMaterial = this.panelResetShader;
+        this.renderer.render(this.scene, this.camera, this.frontPanelRenderTarget);
+        this.renderer.render(this.scene, this.camera, this.rearPanelRenderTarget);
     },
 
-    updateTensorDisplay: function () {
-        // Update tensor field
-        this.scene.overrideMaterial = this.tensorFieldShader;
-        this.renderer.render(this.scene, this.camera, this.tensorFieldRenderTarget);
+    updateDisplay: function () {
+        // Update display light field
+        this.scene.overrideMaterial = this.displayLightFieldShader;
+        this.renderer.render(this.scene, this.camera, this.displayLightFieldRenderTarget);
 
-        // Update display 1
-        this.scene.overrideMaterial = this.display1UpdateShader;
-        this.renderer.render(this.scene, this.camera, this.display1RenderTarget);
+        // Update front panel
+        this.scene.overrideMaterial = this.frontPanelUpdateShader;
+        this.renderer.render(this.scene, this.camera, this.frontPanelRenderTarget);
 
-        // Update tensor field (again)
-        this.scene.overrideMaterial = this.tensorFieldShader;
-        this.renderer.render(this.scene, this.camera, this.tensorFieldRenderTarget);
+        // Update display light field (again)
+        this.scene.overrideMaterial = this.displayLightFieldShader;
+        this.renderer.render(this.scene, this.camera, this.displayLightFieldRenderTarget);
 
-        // Update display 2
-        this.scene.overrideMaterial = this.display2UpdateShader;
-        this.renderer.render(this.scene, this.camera, this.display2RenderTarget);
+        // Update rear panel
+        this.scene.overrideMaterial = this.rearPanelUpdateShader;
+        this.renderer.render(this.scene, this.camera, this.rearPanelRenderTarget);
     },
 
     processInput: function (deltaTime, input) {
@@ -265,35 +266,35 @@ var simulator = {
         this.uniforms.resolution.value.y = this.renderer.domElement.height;
         this.uniforms.imageExport.value = this.properties.image;
 
-        this.uniforms.angularResolution.value.x = this.properties.angularResX;
-        this.uniforms.angularResolution.value.y = this.properties.angularResY;
         this.uniforms.spatialResolution.value.x = this.properties.spatialResX;
         this.uniforms.spatialResolution.value.y = this.properties.spatialResY;
+        this.uniforms.angularResolution.value.x = this.properties.angularResX;
+        this.uniforms.angularResolution.value.y = this.properties.angularResY;
 
-        var angularAspect = this.properties.angularResX / this.properties.angularResY;
         var spatialAspect = this.properties.spatialResX / this.properties.spatialResY;
+        var angularAspect = this.properties.angularResX / this.properties.angularResY;
 
-        this.uniforms.angularSize.value.x = this.properties.angularHeight * angularAspect;
-        this.uniforms.angularSize.value.y = this.properties.angularHeight;
-        this.uniforms.angularSize.value.z = -this.properties.angularDistance;
         this.uniforms.spatialSize.value.x = this.properties.spatialHeight * spatialAspect;
         this.uniforms.spatialSize.value.y = this.properties.spatialHeight;
         this.uniforms.spatialSize.value.z = -this.properties.spatialDistance;
+        this.uniforms.angularSize.value.x = this.properties.angularHeight * angularAspect;
+        this.uniforms.angularSize.value.y = this.properties.angularHeight;
+        this.uniforms.angularSize.value.z = -this.properties.angularDistance;
 
-        this.uniforms.display1Resolution.value.x = this.properties.display1ResX;
-        this.uniforms.display1Resolution.value.y = this.properties.display1ResY;
-        this.uniforms.display2Resolution.value.x = this.properties.display2ResX;
-        this.uniforms.display2Resolution.value.y = this.properties.display2ResY;
+        this.uniforms.frontPanelResolution.value.x = this.properties.frontPanelResX;
+        this.uniforms.frontPanelResolution.value.y = this.properties.frontPanelResY;
+        this.uniforms.rearPanelResolution.value.x = this.properties.rearPanelResX;
+        this.uniforms.rearPanelResolution.value.y = this.properties.rearPanelResY;
 
-        var display1Aspect = this.properties.display1ResX / this.properties.display1ResY;
-        var display2Aspect = this.properties.display2ResX / this.properties.display2ResY;
+        var frontPanelAspect = this.properties.frontPanelResX / this.properties.frontPanelResY;
+        var rearPanelAspect = this.properties.rearPanelResX / this.properties.rearPanelResY;
 
-        this.uniforms.display1Size.value.x = this.properties.display1Height * display1Aspect;
-        this.uniforms.display1Size.value.y = this.properties.display1Height;
-        this.uniforms.display1Size.value.z = -this.properties.display1Distance;
-        this.uniforms.display2Size.value.x = this.properties.display2Height * display2Aspect;
-        this.uniforms.display2Size.value.y = this.properties.display2Height;
-        this.uniforms.display2Size.value.z = -this.properties.display2Distance;
+        this.uniforms.frontPanelSize.value.x = this.properties.frontPanelHeight * frontPanelAspect;
+        this.uniforms.frontPanelSize.value.y = this.properties.frontPanelHeight;
+        this.uniforms.frontPanelSize.value.z = -this.properties.frontPanelDistance;
+        this.uniforms.rearPanelSize.value.x = this.properties.rearPanelHeight * rearPanelAspect;
+        this.uniforms.rearPanelSize.value.y = this.properties.rearPanelHeight;
+        this.uniforms.rearPanelSize.value.z = -this.properties.rearPanelDistance;
 
         var halfAngle = this.properties.verticalFOV * Math.PI / 360.0;
         var retinaHeight = 2.0 * this.properties.focalLength * Math.tan(halfAngle);
@@ -315,7 +316,8 @@ var simulator = {
 
     exportImage: function() {
         if (this.properties.image >= 0) {
-            image = [this.lightFieldRenderTarget, this.display1RenderTarget, this.display2RenderTarget, this.tensorFieldRenderTarget][this.properties.image];
+            image = [this.sampledLightFieldRenderTarget, this.frontPanelRenderTarget, this.rearPanelRenderTarget,
+                     this.displayLightFieldRenderTarget][this.properties.image];
             this.renderer.setSize(image.width, image.height);
             this.updateUniforms();
             this.scene.overrideMaterial = this.imageExportShader;
