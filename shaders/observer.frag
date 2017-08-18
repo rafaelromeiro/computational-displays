@@ -17,7 +17,7 @@ void main() {
         vec3 rayDirection = normalize(focusPoint - pupilPoint);
         vec3 rayColor = vec3(1.0, 0.0, 1.0);
 
-        // Render mode (scene: 1, sampled light field: 2, display: 3)
+        // Render mode (scene: 0, sampled light field: 1, display: 2)
         if (renderMode == 0) rayColor = raycastScene(rayOrigin, rayDirection);
         if (renderMode == 1) rayColor = raycastSampledLightField(rayOrigin, rayDirection);
         if (renderMode == 2) rayColor = raycastDisplay(rayOrigin, rayDirection);

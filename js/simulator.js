@@ -23,8 +23,8 @@ var simulator = {
         spatialHeight: 10.0,
         spatialDistance: 0.0,
 
-        angularResX: 256.0,
-        angularResY: 256.0,
+        angularResX: 64.0,
+        angularResY: 64.0,
         angularHeight: 40.0,
         angularDistance: 40.0,
 
@@ -33,8 +33,8 @@ var simulator = {
         frontPanelHeight: 10.0,
         frontPanelDistance: 0.0, 
 
-        rearPanelResX: 256.0,
-        rearPanelResY: 256.0,
+        rearPanelResX: 64.0,
+        rearPanelResY: 64.0,
         rearPanelHeight: 40.0,
         rearPanelDistance: 40.0,
 
