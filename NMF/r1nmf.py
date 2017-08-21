@@ -60,22 +60,6 @@ misc.imsave('./output/output_LeeSeung.png', a @ b.T)
 misc.imsave('./output/a_LeeSeung.png', a @ np.ones(b.shape).T)
 misc.imsave('./output/b_LeeSeung.png', np.ones(a.shape) @ b.T)
 
-# RRI Method (Ho et al. [2007])
-print('[RRI]')
-
-a = a_init
-b = b_init
-
-print('Init.: %.5f seconds' % init_time)
-
-for i in trange(20):
-    a = (target @ b) / (b.T @ b)
-    b = (target.T @ a) / (a.T @ a)
-
-misc.imsave('./output/output_RRI.png', a @ b.T)
-misc.imsave('./output/a_RRI.png', a @ np.ones(b.shape).T)
-misc.imsave('./output/b_RRI.png', np.ones(a.shape) @ b.T)
-
 # Weighted multiplicative iterative method (Blondel et al. [2008])
 print('[Blondel]')
 
@@ -93,6 +77,22 @@ misc.imsave('./output/a_Blondel.png', a @ np.ones(b.shape).T)
 misc.imsave('./output/b_Blondel.png', np.ones(a.shape) @ b.T)
 
 misc.imsave('./output/cropped_Blondel.png', W * (a @ b.T))
+
+# RRI Method (Ho et al. [2007])
+print('[RRI]')
+
+a = a_init
+b = b_init
+
+print('Init.: %.5f seconds' % init_time)
+
+for i in trange(20):
+    a = (target @ b) / (b.T @ b)
+    b = (target.T @ a) / (a.T @ a)
+
+misc.imsave('./output/output_RRI.png', a @ b.T)
+misc.imsave('./output/a_RRI.png', a @ np.ones(b.shape).T)
+misc.imsave('./output/b_RRI.png', np.ones(a.shape) @ b.T)
 
 # WRRI Method (Ho [2008])
 print('[WRRI]')
